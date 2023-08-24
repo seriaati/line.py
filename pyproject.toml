@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "line.py"
+version = "0.0.1"
+authors = [
+  { name="Seria Ati", email="seria.ati@gmail.com" },
+]
+description = "Python 非阻塞式 LINE Messaging API 串接"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GPL-3.0 License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "python-dotenv>=1.0.0",
+  "line-bot-sdk==3.2.0",
+]
