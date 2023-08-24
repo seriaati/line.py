@@ -24,6 +24,8 @@
     bot = Bot(channel_secret="YOUR_CHANNEL_SECRET", access_token="YOUR_ACCESS_TOKEN")
     bot.add_cog(MyCog(bot))
     await bot.run()
+
+ asyncio.run(main())
  ```
 
 # 功能
