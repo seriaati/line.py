@@ -1,5 +1,5 @@
 # line.py
- Python 非阻塞式 LINE Messaging API 串接, 輕鬆快速的製作 LINE 機器人
+ Python 非阻塞式 LINE Messaging API 串接, 輕鬆快速的製作 LINE 機器人  
  ⚠️ 此 package 目前僅供(我)個人使用, 所以並沒有 cover 全部的 API, 如果有其他人想用的話, 我再加
 
 # 安裝
