@@ -29,7 +29,7 @@ class IntConvertError(Exception):
 
 
 class CogLoadError(Exception):
-    def __init__(self, cog_path, e: Exception) -> None:
+    def __init__(self, cog_path, e: Exception | str) -> None:
         self.cog_path = cog_path
         self.e = e
 

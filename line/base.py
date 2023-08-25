@@ -171,13 +171,23 @@ class Bot:
     def add_cog(self, cog_path_or_cog_class: pathOrClass) -> None:
         try:
             if isinstance(cog_path_or_cog_class, str):
-                module = cog_path_or_cog_class.rsplit(".", 1)[0]
-                module = importlib.import_module(module)
-                # get all classes in the module that are subclasses of Cog
+                # cog path, example: bot.cogs.info
+                module = importlib.import_module(cog_path_or_cog_class)
+                # get all classes in the module that is subclass of Cog and not Cog itself
                 classes = inspect.getmembers(module, inspect.isclass)
-                classes = [class_ for class_ in classes if issubclass(class_[1], Cog)]
-                # add first class found
-                self.cogs.append(classes[0][1](self))
+                classes = [
+                    class_
+                    for class_ in classes
+                    if issubclass(class_[1], Cog) and class_[1] != Cog
+                ]
+                if not classes:
+                    raise CogLoadError(cog_path_or_cog_class, "No Cog subclass found")
+                if len(classes) > 1:
+                    raise CogLoadError(
+                        cog_path_or_cog_class, "Multiple Cog subclasses found"
+                    )
+                cog_class = classes[0][1]
+                self.cogs.append(cog_class(self))
             else:
                 self.cogs.append(cog_path_or_cog_class(self))
         except Exception as e:
