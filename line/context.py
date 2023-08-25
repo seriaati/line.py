@@ -37,7 +37,7 @@ class Context:
         text: str,
         *,
         quick_reply: Optional[QuickReply] = None,
-        notification_disabled: bool = False
+        notification_disabled: bool = False,
     ) -> None:
         if self.reply_token is None:
             raise ValueError("reply_token must be provided")
@@ -55,7 +55,7 @@ class Context:
         template: Template,
         *,
         quick_reply: Optional[QuickReply] = None,
-        notification_disabled: bool = False
+        notification_disabled: bool = False,
     ) -> None:
         if self.reply_token is None:
             raise ValueError("reply_token must be provided")
@@ -69,6 +69,19 @@ class Context:
                         quick_reply=quick_reply,
                     )
                 ],
+                notificationDisabled=notification_disabled,
+            )
+        )
+
+    async def reply_multiple(
+        self, messages: List[Message], *, notification_disabled: bool = False
+    ) -> None:
+        if self.reply_token is None:
+            raise ValueError("reply_token must be provided")
+        await self.api.reply_message(
+            ReplyMessageRequest(
+                replyToken=self.reply_token,
+                messages=messages,
                 notificationDisabled=notification_disabled,
             )
         )
