@@ -156,6 +156,9 @@ class Bot:
     async def setup_hook(self) -> None:
         pass
 
+    async def on_close(self) -> None:
+        pass
+
     async def run(self) -> None:
         self.setup_logging()
         await self.setup_hook()
@@ -165,8 +168,13 @@ class Bot:
         site = TCPSite(runner=runner, port=self.port)
         await site.start()
         logging.info("Server started at port %d", self.port)
-        while True:
-            await asyncio.sleep(3600)
+        try:
+            while True:
+                await asyncio.sleep(3600)
+        except KeyboardInterrupt:
+            await self.on_close()
+            await site.stop()
+            await runner.cleanup()
 
     def add_cog(self, cog_path_or_cog_class: pathOrClass) -> None:
         try:
