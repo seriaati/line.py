@@ -171,9 +171,12 @@ class Bot:
         try:
             while True:
                 await asyncio.sleep(3600)
-        except KeyboardInterrupt:
+        except asyncio.CancelledError:
+            logging.info("Server shutting down")
             await self.on_close()
             await site.stop()
+            await self.app.shutdown()
+            await self.async_api_client.close()
             await runner.cleanup()
 
     def add_cog(self, cog_path_or_cog_class: pathOrClass) -> None:
