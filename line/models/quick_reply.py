@@ -5,9 +5,9 @@ import linebot.v3.messaging as messaging
 
 class QuickReplyItem(messaging.QuickReplyItem):
     def __init__(
-        self, action: messaging.Action, *, imge_url: Optional[str] = None
+        self, action: messaging.Action, *, image_url: Optional[str] = None
     ) -> None:
-        super().__init__(action=action, imageUrl=imge_url, type="action")
+        super().__init__(action=action, imageUrl=image_url, type="action")
 
 
 class QuickReply(messaging.QuickReply):
