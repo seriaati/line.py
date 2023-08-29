@@ -8,7 +8,7 @@ from linebot.v3.messaging import (
     Template,
 )
 
-from .models.messages import TemplateMessage, TextMessage
+from .models.messages import ImageMessage, TemplateMessage, TextMessage
 
 
 class Context:
@@ -82,6 +82,30 @@ class Context:
             ReplyMessageRequest(
                 replyToken=self.reply_token,
                 messages=messages,
+                notificationDisabled=notification_disabled,
+            )
+        )
+
+    async def reply_image(
+        self,
+        image_url: str,
+        *,
+        preview_image_url: Optional[str] = None,
+        quick_reply: Optional[QuickReply] = None,
+        notification_disabled: bool = False,
+    ) -> None:
+        if self.reply_token is None:
+            raise ValueError("reply_token must be provided")
+        await self.api.reply_message(
+            ReplyMessageRequest(
+                replyToken=self.reply_token,
+                messages=[
+                    ImageMessage(
+                        original_content_url=image_url,
+                        preview_image_url=preview_image_url or image_url,
+                        quick_reply=quick_reply,
+                    )
+                ],
                 notificationDisabled=notification_disabled,
             )
         )
