@@ -80,7 +80,7 @@ class Bot:
                 None if param.default == inspect.Parameter.empty else param.default
             )
             value = data.get(param.name, default)
-            if param.annotation == int:
+            if param.annotation == int or param.annotation == Optional[int]:
                 if value is None:
                     raise IntConvertError(param.name, value)
                 if not value.isdigit():
