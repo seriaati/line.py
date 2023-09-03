@@ -14,7 +14,7 @@ async def main() -> None:
     if not (channel_secret and access_token):
         raise RuntimeError("Channel secret and access token must be provided")
     bot = Bot(channel_secret=channel_secret, access_token=access_token)
-    bot.add_cog("example.cog.ExampleCog")
+    bot.add_cog("example.cog")
     await bot.run()
 
 
