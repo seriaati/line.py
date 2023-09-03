@@ -2,6 +2,7 @@ from typing import List, Optional
 
 import linebot.v3.messaging as messaging
 
+from ..utils import find_indexes
 from .emoji import Emoji
 
 
@@ -13,7 +14,20 @@ class TextMessage(messaging.TextMessage):
         quick_reply: Optional[messaging.QuickReply] = None,
         emojis: Optional[List[Emoji]] = None,
     ) -> None:
-        super().__init__(text=text, quickReply=quick_reply, emojis=emojis)  # type: ignore
+        line_emojis: Optional[List[messaging.Emoji]] = None
+        if emojis:
+            line_emojis = []
+            indexes = find_indexes(text, "$")
+            for i, emoji in enumerate(emojis):
+                line_emojis.append(
+                    messaging.Emoji(
+                        index=indexes[i],
+                        productId=emoji.product_id,
+                        emojiId=emoji.emoji_id,
+                    )
+                )
+
+        super().__init__(text=text, quickReply=quick_reply, emojis=line_emojis)
 
 
 class TemplateMessage(messaging.TemplateMessage):
