@@ -8,7 +8,7 @@ from linebot.v3.messaging import (
     Template,
 )
 
-from .models.messages import ImageMessage, TemplateMessage, TextMessage
+from .models.messages import Emoji, ImageMessage, TemplateMessage, TextMessage
 
 
 class Context:
@@ -38,13 +38,16 @@ class Context:
         *,
         quick_reply: Optional[QuickReply] = None,
         notification_disabled: bool = False,
+        emojis: Optional[List[Emoji]] = None,
     ) -> None:
         if self.reply_token is None:
             raise ValueError("reply_token must be provided")
         await self.api.reply_message(
             ReplyMessageRequest(
                 replyToken=self.reply_token,
-                messages=[TextMessage(text=text, quick_reply=quick_reply)],
+                messages=[
+                    TextMessage(text=text, quick_reply=quick_reply, emojis=emojis)
+                ],
                 notificationDisabled=notification_disabled,
             )
         )
