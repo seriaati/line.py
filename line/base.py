@@ -22,12 +22,9 @@ pathOrClass = TypeVar("pathOrClass", str, Type["Cog"])
 
 
 class Bot:
-    def __init__(
-        self, *, channel_secret: str, access_token: str, port: int = 8000
-    ) -> None:
+    def __init__(self, *, channel_secret: str, access_token: str) -> None:
         self.channel_secret = channel_secret
         self.access_token = access_token
-        self.port = port
         self.cogs: List["Cog"] = []
         self.app = web.Application()
 
@@ -159,15 +156,15 @@ class Bot:
     async def on_close(self) -> None:
         pass
 
-    async def run(self) -> None:
+    async def run(self, port: int = 8000) -> None:
         self.setup_logging()
         await self.setup_hook()
         self.app.add_routes([web.post("/line", self.command_handler)])
         runner = web.AppRunner(self.app)
         await runner.setup()
-        site = TCPSite(runner=runner, port=self.port)
+        site = TCPSite(runner=runner, port=port)
         await site.start()
-        logging.info("Server started at port %d", self.port)
+        logging.info("Server started at port %d", port)
         try:
             while True:
                 await asyncio.sleep(3600)
