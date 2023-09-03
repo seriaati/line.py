@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 
 from linebot.v3 import messaging as messaging
 
@@ -10,9 +10,10 @@ class PostbackAction(messaging.PostbackAction):
         label: str,
         *,
         display_text: Optional[str] = None,
-        text: Optional[str] = None,
-        input_option: Optional[str] = None,
-        fill_in_text: Optional[str] = None
+        input_option: Optional[
+            Literal["closeRichMenu", "openRichMenu", "openKeyboard", "openVoice"]
+        ] = None,
+        fill_in_text: Optional[str] = None,
     ) -> None:
         if fill_in_text and input_option != "openKeyboard":
             raise ValueError(
@@ -22,7 +23,6 @@ class PostbackAction(messaging.PostbackAction):
             data=data,
             label=label,
             displayText=display_text,
-            text=text,
             inputOption=input_option,
             fillInText=fill_in_text,
         )
