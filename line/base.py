@@ -156,6 +156,9 @@ class Bot:
     async def on_close(self) -> None:
         pass
 
+    async def run_tasks(self) -> None:
+        pass
+
     async def run(self, port: int = 8000) -> None:
         self.setup_logging()
         await self.setup_hook()
@@ -167,7 +170,9 @@ class Bot:
         logging.info("Server started at port %d", port)
         try:
             while True:
-                await asyncio.sleep(3600)
+                # run tasks every minute
+                await self.run_tasks()
+                await asyncio.sleep(60)
         except asyncio.CancelledError:
             logging.info("Server shutting down")
             await self.on_close()
