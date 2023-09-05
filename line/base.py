@@ -171,7 +171,7 @@ class Bot:
         try:
             while True:
                 # run tasks every minute
-                await self.run_tasks()
+                asyncio.create_task(self.run_tasks())
                 await asyncio.sleep(60)
         except asyncio.CancelledError:
             logging.info("Server shutting down")
