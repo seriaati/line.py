@@ -19,19 +19,6 @@ class Context:
         self.api = api
         self.reply_token = reply_token
 
-    async def reply(
-        self, messages: List[Message], *, notification_disabled: bool = False
-    ) -> None:
-        if self.reply_token is None:
-            raise ValueError("reply_token must be provided")
-        await self.api.reply_message(
-            ReplyMessageRequest(
-                replyToken=self.reply_token,
-                messages=messages,
-                notificationDisabled=notification_disabled,
-            )
-        )
-
     async def reply_text(
         self,
         text: str,
