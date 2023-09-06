@@ -83,6 +83,14 @@ class Bot:
                 if not value.isdigit():
                     raise IntConvertError(param.name, value)
                 value = int(value)
+            elif (
+                param.annotation == bool or param.annotation == Optional[bool]
+            ) and isinstance(value, str):
+                if value.lower() == "true":
+                    value = True
+                elif value.lower() == "false":
+                    value = False
+
             if param.kind == inspect.Parameter.KEYWORD_ONLY:
                 kwargs[param.name] = value
             else:
