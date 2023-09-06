@@ -159,10 +159,10 @@ class Bot:
     async def run_tasks(self) -> None:
         pass
 
-    async def run(self, port: int = 8000) -> None:
+    async def run(self, port: int = 8000, custom_route: Optional[str] = None) -> None:
         self.setup_logging()
         await self.setup_hook()
-        self.app.add_routes([web.post("/line", self.command_handler)])
+        self.app.add_routes([web.post(custom_route or "/line", self.command_handler)])
         runner = web.AppRunner(self.app)
         await runner.setup()
         site = TCPSite(runner=runner, port=port)
