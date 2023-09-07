@@ -1,2 +1,2 @@
-python-dotenv==1.0.0
-line-bot-sdk==3.2.0
+python-dotenv
+line-bot-sdk==3.4.0
