@@ -23,32 +23,29 @@ pathOrClass = TypeVar("pathOrClass", str, Type["Cog"])
 
 class Bot:
     def __init__(self, *, channel_secret: str, access_token: str) -> None:
-        self.channel_secret = channel_secret
-        self.access_token = access_token
         self.cogs: List["Cog"] = []
         self.app = web.Application()
-
-        if not (self.channel_secret and self.access_token):
-            raise ValueError("Channel secret and channel access token must be provided")
-        configuration = Configuration(access_token=self.access_token)
+        configuration = Configuration(access_token=access_token)
         self.async_api_client = AsyncApiClient(configuration)
         self.line_bot_api = AsyncMessagingApi(self.async_api_client)
         self.blob_api = AsyncMessagingApiBlob(self.async_api_client)
-        self.parser = WebhookParser(self.channel_secret)
+        self.webhook_parser = WebhookParser(channel_secret)
 
     @staticmethod
-    def setup_logging() -> None:
+    def _setup_logging(log_to_stream: bool = False) -> None:
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s %(levelname)s %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
             handlers=[
-                logging.StreamHandler(),
+                logging.FileHandler("bot.log", encoding="utf-8"),
             ],
         )
+        if log_to_stream:
+            logging.getLogger().addHandler(logging.StreamHandler())
 
     @staticmethod
-    def data_parser(param_string: str) -> Dict[str, Optional[str]]:
+    def _data_parser(param_string: str) -> Dict[str, Optional[str]]:
         param_dict = {}
         if param_string:
             params = param_string.split("&")
@@ -65,18 +62,18 @@ class Bot:
         return param_dict
 
     @staticmethod
-    def param_parser(
+    def _param_parser(
         params: Dict[str, inspect.Parameter], data: Dict[str, Optional[str]]
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args: List[Any] = []
         kwargs: Dict[str, Any] = {}
-        for param in params.values():
-            if param.name in ("self", "ctx"):
-                continue
+
+        for param in list(params.values())[2:]:
             default = (
                 None if param.default == inspect.Parameter.empty else param.default
             )
             value = data.get(param.name, default)
+
             if (
                 param.annotation == int or param.annotation == Optional[int]
             ) and isinstance(value, str):
@@ -98,16 +95,16 @@ class Bot:
         return args, kwargs
 
     @staticmethod
-    async def error_handler(exception: Exception) -> None:
+    async def _error_handler(exception: Exception) -> None:
         logging.exception(exception)
 
-    async def command_handler(self, request: web.Request) -> web.Response:
+    async def _command_handler(self, request: web.Request) -> web.Response:
         try:
             signature = request.headers["X-Line-Signature"]
             body = await request.text()
 
             try:
-                events: List[Event] = self.parser.parse(body, signature)  # type: ignore
+                events: List[Event] = self.webhook_parser.parse(body, signature)  # type: ignore
             except InvalidSignatureError:
                 logging.error("Invalid signature")
                 return web.Response(status=400, text="Invalid signature")
@@ -127,7 +124,7 @@ class Bot:
                     logging.error("Event type is not supported")
                     continue
 
-                data = self.data_parser(text)
+                data = self._data_parser(text)
                 cmd = data.get("cmd")
                 if cmd is None:
                     continue
@@ -144,7 +141,7 @@ class Bot:
                         sig = inspect.signature(func.original_function)
                         params = sig.parameters
                         try:
-                            args, kwargs = self.param_parser(params, data)  # type: ignore
+                            args, kwargs = self._param_parser(params, data)  # type: ignore
                         except Exception as e:
                             raise ParamParseError(name, e)
 
@@ -155,7 +152,7 @@ class Bot:
                         return web.Response(text="OK", status=200)
             return web.Response(text="OK", status=200)
         except Exception as e:
-            await self.error_handler(e)
+            await self._error_handler(e)
             return web.Response(text="Internal server error", status=500)
 
     async def setup_hook(self) -> None:
@@ -167,10 +164,27 @@ class Bot:
     async def run_tasks(self) -> None:
         pass
 
-    async def run(self, port: int = 8000, custom_route: Optional[str] = None) -> None:
-        self.setup_logging()
+    async def run(
+        self,
+        *,
+        port: int = 8000,
+        custom_route: Optional[str] = None,
+        log_to_stream: bool = False,
+    ) -> None:
+        """
+        Runs the server on the specified port and sets up the necessary routes and hooks.
+
+        Args:
+            port (int): The port number to run the server on. Defaults to 8000.
+            custom_route (Optional[str]): The custom route to use for handling commands. Defaults to "/line".
+            log_to_stream (bool): Whether to log to stdout. Defaults to False.
+
+        Returns:
+            None
+        """
+        self._setup_logging(log_to_stream)
         await self.setup_hook()
-        self.app.add_routes([web.post(custom_route or "/line", self.command_handler)])
+        self.app.add_routes([web.post(custom_route or "/line", self._command_handler)])
         runner = web.AppRunner(self.app)
         await runner.setup()
         site = TCPSite(runner=runner, port=port)
@@ -189,11 +203,23 @@ class Bot:
             await self.async_api_client.close()
             await runner.cleanup()
 
-    def add_cog(self, cog_path_or_cog_class: pathOrClass) -> None:
+    def add_cog(self, path_or_class: pathOrClass) -> None:
+        """
+        Adds a cog to the bot.
+
+        Args:
+            path_or_class (Union[str, Type[Cog]]): The path to the cog or the cog class itself.
+
+        Raises:
+            CogLoadError: If the cog cannot be loaded.
+
+        Returns:
+            None
+        """
         try:
-            if isinstance(cog_path_or_cog_class, str):
+            if isinstance(path_or_class, str):
                 # cog path, example: bot.cogs.info
-                module = importlib.import_module(cog_path_or_cog_class)
+                module = importlib.import_module(path_or_class)
                 # get all classes in the module that is subclass of Cog and not Cog itself
                 classes = inspect.getmembers(module, inspect.isclass)
                 classes = [
@@ -202,17 +228,15 @@ class Bot:
                     if issubclass(class_[1], Cog) and class_[1] != Cog
                 ]
                 if not classes:
-                    raise CogLoadError(cog_path_or_cog_class, "No Cog subclass found")
+                    raise CogLoadError(path_or_class, "No Cog subclass found")
                 if len(classes) > 1:
-                    raise CogLoadError(
-                        cog_path_or_cog_class, "Multiple Cog subclasses found"
-                    )
+                    raise CogLoadError(path_or_class, "Multiple Cog subclasses found")
                 cog_class = classes[0][1]
                 self.cogs.append(cog_class(self))
             else:
-                self.cogs.append(cog_path_or_cog_class(self))
+                self.cogs.append(path_or_class(self))
         except Exception as e:
-            raise CogLoadError(cog_path_or_cog_class, e)
+            raise CogLoadError(path_or_class, e)
 
 
 class Cog:
