@@ -42,8 +42,8 @@ class Context:
     async def reply_template(
         self,
         alt_text: str,
-        template: Template,
         *,
+        template: Template,
         quick_reply: Optional[QuickReply] = None,
         notification_disabled: bool = False,
     ) -> None:
