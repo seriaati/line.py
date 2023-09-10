@@ -11,6 +11,8 @@ from linebot.v3.messaging import (
     AsyncMessagingApi,
     AsyncMessagingApiBlob,
     Configuration,
+    Message,
+    PushMessageRequest,
 )
 from linebot.v3.webhook import Event, InvalidSignatureError, WebhookParser
 from linebot.v3.webhooks import MessageEvent, PostbackEvent
@@ -237,6 +239,41 @@ class Bot:
                 self.cogs.append(path_or_class(self))
         except Exception as e:
             raise CogLoadError(path_or_class, e)
+
+    async def push_message(
+        self,
+        to: str,
+        messages: List[Message],
+        *,
+        notification_disabled: bool = False,
+        custom_aggregation_units: Optional[List[str]] = None,
+    ) -> None:
+        """
+        Sends a push message to a user or group.
+
+        Args:
+            to (str): The ID of the user or group to send the message to.
+            messages (List[Message]): A list of Message objects to send.
+            notification_disabled (bool, optional): Whether to disable notification for the message. Defaults to False.
+            custom_aggregation_units (Optional[List[str]], optional): A list of aggregation units for the message. Defaults to None.
+
+        Raises:
+            ValueError: If the number of messages is greater than 5.
+
+        Returns:
+            None
+        """
+        if len(messages) > 5:
+            raise ValueError("The number of messages must be less than or equal to 5")
+
+        await self.line_bot_api.push_message(
+            PushMessageRequest(
+                to=to,
+                messages=messages,
+                notificationDisabled=notification_disabled,
+                customAggregationUnits=custom_aggregation_units,
+            )
+        )
 
 
 class Cog:
