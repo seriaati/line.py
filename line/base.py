@@ -138,15 +138,17 @@ class Bot:
                     continue
 
                 data = self._data_parser(text)
-                cmd = data.get("cmd")
-                if cmd is None:
-                    continue
 
                 user_id = event.source.user_id  # type: ignore
                 reply_token = event.reply_token
                 ctx = Context(
                     user_id=user_id, api=self.line_bot_api, reply_token=reply_token
                 )
+                cmd = data.get("cmd")
+                if cmd is None:
+                    await self.handle_no_cmd(ctx)
+                    continue
+
                 for cog in self.cogs:
                     for name, func in cog.commands.items():
                         if name != cmd:
@@ -167,6 +169,9 @@ class Bot:
         except Exception as e:
             await self._error_handler(e)
             return web.Response(text="Internal server error", status=500)
+
+    async def handle_no_cmd(self, ctx: Context) -> None:
+        pass
 
     async def setup_hook(self) -> None:
         pass
