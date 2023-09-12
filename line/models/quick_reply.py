@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional, Sequence
 
 import linebot.v3.messaging as messaging
 
@@ -22,7 +22,7 @@ class QuickReply(messaging.QuickReply):
     https://developers.line.biz/en/reference/messaging-api/#quick-reply
     """
 
-    def __init__(self, items: List[QuickReplyItem]) -> None:
+    def __init__(self, items: Sequence[QuickReplyItem]) -> None:
         if len(items) > 13:
             raise ValueError("The number of items must be less than or equal to 13")
 

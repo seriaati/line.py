@@ -2,7 +2,18 @@ import asyncio
 import importlib
 import inspect
 import logging
-from typing import Any, Awaitable, Callable, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    TypeVar,
+)
 
 from aiohttp import web
 from aiohttp.web_runner import TCPSite
@@ -66,8 +77,8 @@ class Bot:
     @staticmethod
     def _param_parser(
         params: Dict[str, inspect.Parameter], data: Dict[str, Optional[str]]
-    ) -> Tuple[List[Any], Dict[str, Any]]:
-        args: List[Any] = []
+    ) -> Tuple[Sequence[Any], Dict[str, Any]]:
+        args: Sequence[Any] = []
         kwargs: Dict[str, Any] = {}
 
         for param in list(params.values())[2:]:
@@ -106,7 +117,7 @@ class Bot:
             body = await request.text()
 
             try:
-                events: List[Event] = self.webhook_parser.parse(body, signature)  # type: ignore
+                events: Sequence[Event] = self.webhook_parser.parse(body, signature)  # type: ignore
             except InvalidSignatureError:
                 logging.error("Invalid signature")
                 return web.Response(status=400, text="Invalid signature")
@@ -243,19 +254,19 @@ class Bot:
     async def push_message(
         self,
         to: str,
-        messages: List[Message],
+        messages: Sequence[Message],
         *,
         notification_disabled: bool = False,
-        custom_aggregation_units: Optional[List[str]] = None,
+        custom_aggregation_units: Optional[Sequence[str]] = None,
     ) -> None:
         """
         Sends a push message to a user or group.
 
         Args:
             to (str): The ID of the user or group to send the message to.
-            messages (List[Message]): A list of Message objects to send.
+            messages (Sequence[Message]): A list of Message objects to send.
             notification_disabled (bool, optional): Whether to disable notification for the message. Defaults to False.
-            custom_aggregation_units (Optional[List[str]], optional): A list of aggregation units for the message. Defaults to None.
+            custom_aggregation_units (Optional[Sequence[str]], optional): A list of aggregation units for the message. Defaults to None.
 
         Raises:
             ValueError: If the number of messages is greater than 5.

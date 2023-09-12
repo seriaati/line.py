@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional, Sequence
 
 from linebot.v3.messaging import (
     AsyncMessagingApi,
@@ -25,7 +25,7 @@ class Context:
         *,
         quick_reply: Optional[QuickReply] = None,
         notification_disabled: bool = False,
-        emojis: Optional[List[Emoji]] = None,
+        emojis: Optional[Sequence[Emoji]] = None,
     ) -> None:
         if self.reply_token is None:
             raise ValueError("reply_token must be provided")
@@ -64,7 +64,7 @@ class Context:
         )
 
     async def reply_multiple(
-        self, messages: List[Message], *, notification_disabled: bool = False
+        self, messages: Sequence[Message], *, notification_disabled: bool = False
     ) -> None:
         if self.reply_token is None:
             raise ValueError("reply_token must be provided")

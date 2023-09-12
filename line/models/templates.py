@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import Literal, Optional, Sequence
 
 from linebot.v3 import messaging as messaging
 
@@ -11,7 +11,7 @@ class CarouselColumn(messaging.CarouselColumn):
     def __init__(
         self,
         text: str,
-        actions: List[messaging.Action],
+        actions: Sequence[messaging.Action],
         *,
         title: Optional[str] = None,
         default_action: Optional[messaging.Action] = None,
@@ -48,7 +48,7 @@ class CarouselTemplate(messaging.CarouselTemplate):
 
     def __init__(
         self,
-        columns: List[CarouselColumn],
+        columns: Sequence[CarouselColumn],
         *,
         image_aspect_raio: Literal["rectangle", "square"] = "rectangle",
         image_size: Literal["cover", "contain"] = "cover",
@@ -69,7 +69,7 @@ class ConfirmTemplate(messaging.ConfirmTemplate):
     def __init__(
         self,
         text: str,
-        actions: List[messaging.Action],
+        actions: Sequence[messaging.Action],
     ) -> None:
         if len(text) > 240:
             raise ValueError("The length of text must be less than or equal to 240")
@@ -90,7 +90,7 @@ class ButtonsTemplate(messaging.ButtonsTemplate):
     def __init__(
         self,
         text: str,
-        actions: List[messaging.Action],
+        actions: Sequence[messaging.Action],
         *,
         title: Optional[str] = None,
         thumbnail_image_url: Optional[str] = None,

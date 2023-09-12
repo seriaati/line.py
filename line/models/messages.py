@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional, Sequence
 
 import linebot.v3.messaging as messaging
 
@@ -16,12 +16,12 @@ class TextMessage(messaging.TextMessage):
         text: str,
         *,
         quick_reply: Optional[messaging.QuickReply] = None,
-        emojis: Optional[List[Emoji]] = None,
+        emojis: Optional[Sequence[Emoji]] = None,
     ) -> None:
         if len(text) > 5000:
             raise ValueError("text must be less than or equal to 5000 characters")
 
-        line_emojis: Optional[List[messaging.Emoji]] = None
+        line_emojis: Optional[Sequence[messaging.Emoji]] = None
         if emojis:
             line_emojis = []
             indexes = find_indexes(text, "$")
