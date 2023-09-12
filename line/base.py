@@ -146,7 +146,7 @@ class Bot:
                 )
                 cmd = data.get("cmd")
                 if cmd is None:
-                    await self.handle_no_cmd(ctx)
+                    await self.handle_no_cmd(ctx, text)
                     continue
 
                 for cog in self.cogs:
@@ -170,7 +170,7 @@ class Bot:
             await self._error_handler(e)
             return web.Response(text="Internal server error", status=500)
 
-    async def handle_no_cmd(self, ctx: Context) -> None:
+    async def handle_no_cmd(self, ctx: Context, text: str) -> None:
         pass
 
     async def setup_hook(self) -> None:
