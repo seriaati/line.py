@@ -45,7 +45,7 @@ class Bot:
         self.webhook_parser = WebhookParser(channel_secret)
 
     @staticmethod
-    def _setup_logging(log_to_stream: bool = False) -> None:
+    def _setup_logging(log_to_stream: bool = True) -> None:
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s %(levelname)s %(message)s",
