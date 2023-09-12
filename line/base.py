@@ -45,7 +45,7 @@ class Bot:
         self.webhook_parser = WebhookParser(channel_secret)
 
     @staticmethod
-    def _setup_logging(log_to_stream: bool = True) -> None:
+    def _setup_logging(log_to_stream: bool) -> None:
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s %(levelname)s %(message)s",
@@ -187,7 +187,7 @@ class Bot:
         *,
         port: int = 8000,
         custom_route: Optional[str] = None,
-        log_to_stream: bool = False,
+        log_to_stream: bool = True,
     ) -> None:
         """
         Runs the server on the specified port and sets up the necessary routes and hooks.
@@ -195,7 +195,7 @@ class Bot:
         Args:
             port (int): The port number to run the server on. Defaults to 8000.
             custom_route (Optional[str]): The custom route to use for handling commands. Defaults to "/line".
-            log_to_stream (bool): Whether to log to stdout. Defaults to False.
+            log_to_stream (bool): Whether to log to stdout. Defaults to True.
 
         Returns:
             None
