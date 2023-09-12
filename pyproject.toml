@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "line.py"
-version = "0.0.22"
+version = "0.0.23"
 authors = [
   { name="Seria Ati", email="seria.ati@gmail.com" },
 ]
@@ -18,5 +18,5 @@ classifiers = [
 ]
 dependencies = [
   "python-dotenv>=1.0.0",
-  "line-bot-sdk>=3.2.0",
+  "line-bot-sdk>=3.4.0",
 ]
