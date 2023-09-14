@@ -116,11 +116,7 @@ class Bot:
                 args.append(value)
         return args, kwargs
 
-    @staticmethod
-    async def _error_handler(exception: Exception) -> None:
-        logging.exception(exception)
-
-    async def _command_handler(self, request: web.Request) -> web.Response:
+    async def _handle_request(self, request: web.Request) -> web.Response:
         try:
             signature = request.headers["X-Line-Signature"]
             body = await request.text()
@@ -133,49 +129,53 @@ class Bot:
 
             for event in events:
                 if isinstance(event, PostbackEvent):
-                    text = event.postback.data  # type: ignore
+                    await self.on_postback(event)
                 elif isinstance(event, MessageEvent):
-                    text = event.message.text  # type: ignore
+                    await self.on_message(event)
                 else:
                     logging.error("Event type %s is not supported", type(event))
                     continue
-
-                data = self._parse_data(text)
-
-                user_id = event.source.user_id  # type: ignore
-                reply_token = event.reply_token
-                ctx = Context(
-                    user_id=user_id, api=self.line_bot_api, reply_token=reply_token
-                )
-                cmd = data.get("cmd")
-                if cmd is None:
-                    await self.handle_no_cmd(ctx, text)
-                    continue
-
-                for cog in self.cogs:
-                    func = cog.commands.get(cmd)
-                    if func:
-                        sig = inspect.signature(func.original_function)
-                        params = sig.parameters
-                        try:
-                            args, kwargs = self._parse_params(params, data)  # type: ignore
-                        except Exception as e:
-                            raise ParamParseError(cmd, e)
-
-                        try:
-                            await func(ctx, *args, **kwargs)
-                        except Exception as e:
-                            raise CommandExecError(cmd, e)
-
-                        return web.Response(text="OK", status=200)
-
-            return web.Response(text="OK", status=200)
         except Exception as e:
-            await self._error_handler(e)
+            await self.on_error(e)
             return web.Response(text="Internal server error", status=500)
+        else:
+            return web.Response(text="OK", status=200)
 
-    async def handle_no_cmd(self, ctx: Context, text: str) -> None:
-        pass
+    async def on_postback(self, event: PostbackEvent) -> None:
+        await self.process_command(
+            event.postback.data, event.source.user_id, event.reply_token  # type: ignore
+        )
+
+    async def on_message(self, event: MessageEvent) -> None:
+        await self.process_command(
+            event.message.text, event.source.user_id, event.reply_token  # type: ignore
+        )
+
+    async def process_command(self, text: str, user_id: str, reply_token: str) -> Any:
+        data = self._parse_data(text)
+        ctx = Context(user_id=user_id, api=self.line_bot_api, reply_token=reply_token)
+
+        cmd = data.get("cmd")
+        if not cmd:
+            return
+
+        for cog in self.cogs:
+            func = cog.commands.get(cmd)
+            if func:
+                sig = inspect.signature(func.original_function)
+                params = sig.parameters
+                try:
+                    args, kwargs = self._parse_params(params, data)  # type: ignore
+                except Exception as e:
+                    raise ParamParseError(cmd, e)
+
+                try:
+                    await func(ctx, *args, **kwargs)
+                except Exception as e:
+                    raise CommandExecError(cmd, e)
+
+    async def on_error(self, error: Exception) -> None:
+        logging.exception(error)
 
     async def setup_hook(self) -> None:
         pass
@@ -206,7 +206,7 @@ class Bot:
         """
         self._setup_logging(log_to_stream)
         await self.setup_hook()
-        self.app.add_routes([web.post(custom_route or "/line", self._command_handler)])
+        self.app.add_routes([web.post(custom_route or "/line", self._handle_request)])
         runner = web.AppRunner(self.app)
         await runner.setup()
         site = TCPSite(runner=runner, port=port)
