@@ -52,10 +52,11 @@ class Bot:
             datefmt="%Y-%m-%d %H:%M:%S",
             handlers=[
                 logging.FileHandler("bot.log", encoding="utf-8"),
+                logging.StreamHandler(),
             ],
         )
-        if log_to_stream:
-            logging.getLogger().addHandler(logging.StreamHandler())
+        if not log_to_stream:
+            logging.getLogger().removeHandler(logging.StreamHandler())
 
     @staticmethod
     def _data_parser(param_string: str) -> Dict[str, Optional[str]]:
