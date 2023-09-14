@@ -24,6 +24,7 @@ from linebot.v3.messaging import (
     Configuration,
     Message,
     PushMessageRequest,
+    RichMenuRequest,
 )
 from linebot.v3.webhook import Event, InvalidSignatureError, WebhookParser
 from linebot.v3.webhooks import MessageEvent, PostbackEvent
@@ -178,6 +179,18 @@ class Bot:
 
     async def on_error(self, error: Exception) -> None:
         logging.exception(error)
+
+    async def set_rich_menu(
+        self, rich_menu_request: RichMenuRequest, rich_menu_img_path: str
+    ) -> None:
+        result = await self.line_bot_api.create_rich_menu(rich_menu_request)
+        with open(rich_menu_img_path, "rb") as f:
+            await self.blob_api.set_rich_menu_image(
+                result.rich_menu_id,
+                body=bytearray(f.read()),
+                _headers={"Content-Type": "image/png"},
+            )
+        await self.line_bot_api.set_default_rich_menu(result.rich_menu_id)
 
     async def setup_hook(self) -> None:
         pass
