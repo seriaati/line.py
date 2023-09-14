@@ -153,21 +153,22 @@ class Bot:
                     continue
 
                 for cog in self.cogs:
-                    for name, func in cog.commands.items():
-                        if name != cmd:
-                            continue
+                    func = cog.commands.get(cmd)
+                    if func:
                         sig = inspect.signature(func.original_function)
                         params = sig.parameters
                         try:
                             args, kwargs = self._parse_params(params, data)  # type: ignore
                         except Exception as e:
-                            raise ParamParseError(name, e)
+                            raise ParamParseError(cmd, e)
 
                         try:
                             await func(ctx, *args, **kwargs)
                         except Exception as e:
-                            raise CommandExecError(name, e)
+                            raise CommandExecError(cmd, e)
+
                         return web.Response(text="OK", status=200)
+
             return web.Response(text="OK", status=200)
         except Exception as e:
             await self._error_handler(e)
