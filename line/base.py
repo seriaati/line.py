@@ -174,6 +174,8 @@ class Bot:
                 except Exception as e:
                     raise CommandExecError(cmd, e)
 
+                break
+
     async def on_error(self, error: Exception) -> None:
         logging.exception(error)
 
