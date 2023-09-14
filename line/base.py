@@ -59,6 +59,7 @@ class Bot:
             logging.getLogger().removeHandler(logging.StreamHandler())
 
     @staticmethod
+    def _parse_data(param_string: str) -> Dict[str, Optional[str]]:
         """Parses a string of parameters into a dictionary.
 
         Args:
@@ -83,7 +84,7 @@ class Bot:
         return param_dict
 
     @staticmethod
-    def _param_parser(
+    def _parse_params(
         params: Dict[str, inspect.Parameter], data: Dict[str, Optional[str]]
     ) -> Tuple[Sequence[Any], Dict[str, Any]]:
         args: Sequence[Any] = []
@@ -125,27 +126,21 @@ class Bot:
             body = await request.text()
 
             try:
-                events: Sequence[Event] = self.webhook_parser.parse(body, signature)  # type: ignore
+                events: List[Event] = self.webhook_parser.parse(body, signature)  # type: ignore
             except InvalidSignatureError:
                 logging.error("Invalid signature")
                 return web.Response(status=400, text="Invalid signature")
 
             for event in events:
                 if isinstance(event, PostbackEvent):
-                    if event.postback is None:
-                        logging.error("Postback event has no postback data")
-                        continue
-                    text = event.postback.data
+                    text = event.postback.data  # type: ignore
                 elif isinstance(event, MessageEvent):
-                    if not hasattr(event.message, "text"):
-                        logging.error("Message event has no text")
-                        continue
                     text = event.message.text  # type: ignore
                 else:
-                    logging.error("Event type is not supported")
+                    logging.error("Event type %s is not supported", type(event))
                     continue
 
-                data = self._data_parser(text)
+                data = self._parse_data(text)
 
                 user_id = event.source.user_id  # type: ignore
                 reply_token = event.reply_token
@@ -164,7 +159,7 @@ class Bot:
                         sig = inspect.signature(func.original_function)
                         params = sig.parameters
                         try:
-                            args, kwargs = self._param_parser(params, data)  # type: ignore
+                            args, kwargs = self._parse_params(params, data)  # type: ignore
                         except Exception as e:
                             raise ParamParseError(name, e)
 
