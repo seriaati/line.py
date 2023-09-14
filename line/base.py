@@ -59,7 +59,14 @@ class Bot:
             logging.getLogger().removeHandler(logging.StreamHandler())
 
     @staticmethod
-    def _data_parser(param_string: str) -> Dict[str, Optional[str]]:
+        """Parses a string of parameters into a dictionary.
+
+        Args:
+            param_string (str): The string of parameters.
+
+        Returns:
+            Dict[str, Optional[str]]: The dictionary of parameters.
+        """
         param_dict = {}
         if param_string:
             params = param_string.split("&")
