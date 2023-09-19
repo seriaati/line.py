@@ -2,6 +2,7 @@ import asyncio
 import importlib
 import inspect
 import logging
+import warnings
 from typing import (
     Any,
     Awaitable,
@@ -184,6 +185,10 @@ class Bot:
     async def set_rich_menu(
         self, rich_menu_request: RichMenuRequest, rich_menu_img_path: str
     ) -> None:
+        warnings.warn(
+            "set_rich_menu is deprecated, use create_rich_menu ,then set it as default with `line_bot_api.set_default_rich_menu(rich_menu_id)` instead",
+            DeprecationWarning,
+        )
         result = await self.line_bot_api.create_rich_menu(rich_menu_request)
         with open(rich_menu_img_path, "rb") as f:
             await self.blob_api.set_rich_menu_image(
