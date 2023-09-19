@@ -38,13 +38,16 @@ pathOrClass = TypeVar("pathOrClass", str, Type["Cog"])
 
 class Bot:
     def __init__(self, *, channel_secret: str, access_token: str) -> None:
-        self.cogs: List["Cog"] = []
-        self.app = web.Application()
         configuration = Configuration(access_token=access_token)
+
         self.async_api_client = AsyncApiClient(configuration)
         self.line_bot_api = AsyncMessagingApi(self.async_api_client)
         self.blob_api = AsyncMessagingApiBlob(self.async_api_client)
         self.webhook_parser = WebhookParser(channel_secret)
+
+        self.cogs: List["Cog"] = []
+        self.app = web.Application()
+        self.session = self.async_api_client.rest_client.pool_manager
 
     @staticmethod
     def _setup_logging(log_to_stream: bool) -> None:
