@@ -238,6 +238,45 @@ class Bot:
             RichMenuBulkLinkRequest(richMenuId=rich_menu_id, userIds=user_ids)
         )
 
+    async def line_notify(
+        self,
+        token: str,
+        *,
+        message: str,
+        image_thumbnail: Optional[str] = None,
+        image_full_size: Optional[str] = None,
+        sticker_package_id: Optional[str] = None,
+        sticker_id: Optional[str] = None,
+        notification_disabled: bool = False,
+    ) -> None:
+        """
+        Sends a message to LINE Notify.
+
+        Args:
+            message (str): The message to be sent.
+            token (str): The token of the LINE Notify channel.
+            image_thumbnail (Optional[str], optional): The URL of the image thumbnail. Defaults to None.
+            image_full_size (Optional[str], optional): The URL of the full-size image. Defaults to None.
+            sticker_package_id (Optional[str], optional): The ID of the sticker package. Defaults to None. [Sticker List](https://developers.line.biz/en/docs/messaging-api/sticker-list/)
+            sticker_id (Optional[str], optional): The ID of the sticker. Defaults to None.
+            notification_disabled (bool, optional): Whether to disable notification for the message. Defaults to False.
+
+        Returns:
+            None
+        """
+        await self.session.post(
+            "https://notify-api.line.me/api/notify",
+            data={
+                "message": message,
+                "imageThumbnail": image_thumbnail,
+                "imageFullsize": image_full_size,
+                "stickerPackageId": sticker_package_id,
+                "stickerId": sticker_id,
+                "notificationDisabled": notification_disabled,
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
     async def setup_hook(self) -> None:
         pass
 
