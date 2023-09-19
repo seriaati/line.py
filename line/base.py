@@ -24,6 +24,7 @@ from linebot.v3.messaging import (
     Configuration,
     Message,
     PushMessageRequest,
+    RichMenuBulkLinkRequest,
     RichMenuRequest,
 )
 from linebot.v3.webhook import Event, InvalidSignatureError, WebhookParser
@@ -191,6 +192,43 @@ class Bot:
                 _headers={"Content-Type": "image/png"},
             )
         await self.line_bot_api.set_default_rich_menu(result.rich_menu_id)
+
+    async def create_rich_menu(
+        self, rich_menu_request: RichMenuRequest, rich_menu_img_path: str
+    ) -> str:
+        """
+        Creates a new rich menu with the specified request and image, and returns the ID of the created rich menu.
+
+        Args:
+            rich_menu_request (RichMenuRequest): The request object containing the details of the rich menu to be created.
+            rich_menu_img_path (str): The file path of the image to be used as the rich menu image.
+
+        Returns:
+            str: The ID of the created rich menu.
+        """
+        result = await self.line_bot_api.create_rich_menu(rich_menu_request)
+        with open(rich_menu_img_path, "rb") as f:
+            await self.blob_api.set_rich_menu_image(
+                result.rich_menu_id,
+                body=bytearray(f.read()),
+                _headers={"Content-Type": "image/png"},
+            )
+        return result.rich_menu_id
+
+    async def link_rich_menu_to_users(self, rich_menu_id: str, user_ids: List[str]):
+        """
+        Links the specified rich menu to the specified users.
+
+        Args:
+            rich_menu_id (str): The ID of the rich menu to be linked.
+            user_ids (List[str]): The list of user IDs to be linked to the rich menu.
+
+        Returns:
+            None
+        """
+        await self.line_bot_api.link_rich_menu_id_to_users(
+            RichMenuBulkLinkRequest(richMenuId=rich_menu_id, userIds=user_ids)
+        )
 
     async def setup_hook(self) -> None:
         pass
