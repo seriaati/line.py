@@ -28,7 +28,7 @@ from linebot.v3.messaging import (
     RichMenuRequest,
 )
 from linebot.v3.webhook import Event, InvalidSignatureError, WebhookParser
-from linebot.v3.webhooks import MessageEvent, PostbackEvent
+from linebot.v3.webhooks import FollowEvent, MessageEvent, PostbackEvent
 
 from .context import Context
 from .exceptions import CogLoadError, CommandExecError, IntConvertError, ParamParseError
@@ -134,6 +134,8 @@ class Bot:
                     await self.on_postback(event)
                 elif isinstance(event, MessageEvent):
                     await self.on_message(event)
+                elif isinstance(event, FollowEvent):
+                    await self.on_follow(event)
                 else:
                     logging.error("Event type %s is not supported", type(event))
                     continue
@@ -152,6 +154,9 @@ class Bot:
         await self.process_command(
             event.message.text, event.source.user_id, event.reply_token  # type: ignore
         )
+
+    async def on_follow(self, event: FollowEvent) -> None:
+        pass
 
     async def process_command(self, text: str, user_id: str, reply_token: str) -> Any:
         data = self._parse_data(text)
