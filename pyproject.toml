@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "line.py"
-version = "0.5.1"
+version = "0.5.0"
 authors = [
   { name="Seria Ati", email="seria.ati@gmail.com" },
 ]
