@@ -122,3 +122,21 @@ class ButtonsTemplate(messaging.ButtonsTemplate):
             title=title,
             defaultAction=default_action,
         )
+
+
+class ImageCarouselColumn(messaging.ImageCarouselColumn):
+    def __init__(self, image_url: str, action: messaging.Action) -> None:
+        if len(image_url) > 2000:
+            raise ValueError(
+                "The length of image_url must be less than or equal to 2000"
+            )
+
+        super().__init__(imageUrl=image_url, action=action)
+
+
+class ImageCarouselTemplate(messaging.ImageCarouselTemplate):
+    def __init__(self, columns: Sequence[ImageCarouselColumn]) -> None:
+        if len(columns) > 10:
+            raise ValueError("The number of columns must be less than or equal to 10")
+
+        super().__init__(columns=columns)
