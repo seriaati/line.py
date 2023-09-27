@@ -27,7 +27,7 @@ class LineNotifyAPI:
             str: The OAuth URI for the LINE Notify client.
         """
         base_uri = "https://notify-bot.line.me/oauth/authorize"
-        return f"{base_uri}?response_type=code&client_id={self.__client_id}&redirect_uri={self._redirect_uri}&state={state}&response_mode=form_post"
+        return f"{base_uri}?response_type=code&scope=notify&client_id={self.__client_id}&redirect_uri={self._redirect_uri}&state={state}&response_mode=form_post"
 
     async def get_access_token(self, code: str) -> str:
         """
