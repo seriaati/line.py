@@ -64,8 +64,6 @@ class LineNotifyAPI:
         message: str,
         image_thumbnail: Optional[str] = None,
         image_full_size: Optional[str] = None,
-        sticker_package_id: Optional[str] = None,
-        sticker_id: Optional[str] = None,
         notification_disabled: bool = False,
     ) -> None:
         """
@@ -76,8 +74,6 @@ class LineNotifyAPI:
             token (str): The token of the LINE Notify channel.
             image_thumbnail (Optional[str], optional): The URL of the image thumbnail. Defaults to None.
             image_full_size (Optional[str], optional): The URL of the full-size image. Defaults to None.
-            sticker_package_id (Optional[str], optional): The ID of the sticker package. Defaults to None. [Sticker List](https://developers.line.biz/en/docs/messaging-api/sticker-list/)
-            sticker_id (Optional[str], optional): The ID of the sticker. Defaults to None.
             notification_disabled (bool, optional): Whether to disable notification for the message. Defaults to False.
 
         Returns:
@@ -90,8 +86,6 @@ class LineNotifyAPI:
                 "message": message,
                 "imageThumbnail": image_thumbnail,
                 "imageFullsize": image_full_size,
-                "stickerPackageId": sticker_package_id,
-                "stickerId": sticker_id,
                 "notificationDisabled": notification_disabled,
             },
             headers={"Authorization": f"Bearer {token}"},
