@@ -2,18 +2,7 @@ import asyncio
 import importlib
 import inspect
 import logging
-from typing import (
-    Any,
-    Awaitable,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    TypeVar,
-)
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, TypeVar
 
 from aiohttp import web
 from aiohttp.web_runner import TCPSite
@@ -30,13 +19,14 @@ from linebot.v3.messaging import (
 from linebot.v3.webhook import Event, InvalidSignatureError, WebhookParser
 from linebot.v3.webhooks import FollowEvent, MessageEvent, PostbackEvent
 
+from .cog import Cog
 from .context import Context
 from .exceptions import CogLoadError, CommandExecError, IntConvertError, ParamParseError
 
-pathOrClass = TypeVar("pathOrClass", str, Type["Cog"])
+pathOrClass = TypeVar("pathOrClass", str, Type[Cog])
 
 
-class Bot:
+class BaseBot:
     def __init__(self, *, channel_secret: str, access_token: str) -> None:
         configuration = Configuration(access_token=access_token)
 
@@ -45,7 +35,7 @@ class Bot:
         self.blob_api = AsyncMessagingApiBlob(self.async_api_client)
         self.webhook_parser = WebhookParser(channel_secret)
 
-        self.cogs: List["Cog"] = []
+        self.cogs: List[Cog] = []
         self.app = web.Application()
         self.session = self.async_api_client.rest_client.pool_manager
 
@@ -148,6 +138,8 @@ class Bot:
         else:
             return web.Response(text="OK", status=200)
 
+    # event handlers
+
     async def on_postback(self, event: PostbackEvent) -> None:
         await self.process_command(
             event.postback.data, event.source.user_id, event.reply_token  # type: ignore
@@ -160,6 +152,11 @@ class Bot:
 
     async def on_follow(self, event: FollowEvent) -> None:
         pass
+
+    async def on_error(self, error: Exception) -> None:
+        logging.exception(error)
+
+    # command processing
 
     async def process_command(self, text: str, user_id: str, reply_token: str) -> Any:
         data = self._parse_data(text)
@@ -186,8 +183,7 @@ class Bot:
 
                 break
 
-    async def on_error(self, error: Exception) -> None:
-        logging.exception(error)
+    # rich menu
 
     async def set_rich_menu(
         self, rich_menu_request: RichMenuRequest, rich_menu_img_path: str
@@ -241,6 +237,8 @@ class Bot:
             RichMenuBulkLinkRequest(richMenuId=rich_menu_id, userIds=user_ids)
         )
 
+    # line notify
+
     async def line_notify(
         self,
         token: str,
@@ -280,6 +278,8 @@ class Bot:
             headers={"Authorization": f"Bearer {token}"},
         )
 
+    # user-defined methods
+
     async def setup_hook(self) -> None:
         pass
 
@@ -289,44 +289,7 @@ class Bot:
     async def run_tasks(self) -> None:
         pass
 
-    async def run(
-        self,
-        *,
-        port: int = 8000,
-        custom_route: Optional[str] = None,
-        log_to_stream: bool = True,
-    ) -> None:
-        """
-        Runs the server on the specified port and sets up the necessary routes and hooks.
-
-        Args:
-            port (int): The port number to run the server on. Defaults to 8000.
-            custom_route (Optional[str]): The custom route to use for handling commands. Defaults to "/line".
-            log_to_stream (bool): Whether to log to stdout. Defaults to True.
-
-        Returns:
-            None
-        """
-        self._setup_logging(log_to_stream)
-        await self.setup_hook()
-        self.app.add_routes([web.post(custom_route or "/line", self._handle_request)])
-        runner = web.AppRunner(self.app)
-        await runner.setup()
-        site = TCPSite(runner=runner, port=port)
-        await site.start()
-        logging.info("Server started at port %d", port)
-        try:
-            while True:
-                # run tasks every minute
-                asyncio.create_task(self.run_tasks())
-                await asyncio.sleep(60)
-        except asyncio.CancelledError:
-            logging.info("Server shutting down")
-            await self.on_close()
-            await site.stop()
-            await self.app.shutdown()
-            await self.async_api_client.close()
-            await runner.cleanup()
+    # cog management
 
     def add_cog(self, path_or_class: pathOrClass) -> None:
         """
@@ -359,9 +322,11 @@ class Bot:
                 cog_class = classes[0][1]
                 self.cogs.append(cog_class(self))
             else:
-                self.cogs.append(path_or_class(self))
+                self.cogs.append(path_or_class(self))  # type: ignore
         except Exception as e:
             raise CogLoadError(path_or_class, e)
+
+    # messaging api
 
     async def push_message(
         self,
@@ -398,24 +363,43 @@ class Bot:
             )
         )
 
+    # server
 
-class Cog:
-    def __init__(self, bot: Bot):
-        self.bot = bot
-        self.commands: Dict[str, Callable[..., Awaitable[None]]] = {}
-        self.__initialize_commands()
+    async def run(
+        self,
+        *,
+        port: int = 8000,
+        custom_route: Optional[str] = None,
+        log_to_stream: bool = True,
+    ) -> None:
+        """
+        Runs the server on the specified port and sets up the necessary routes and hooks.
 
-    def __initialize_commands(self) -> None:
-        funcs = inspect.getmembers(self, inspect.ismethod)
-        funcs = [func for func in funcs if getattr(func[1], "__is_command__", False)]
-        self.commands = {func[0]: func[1] for func in funcs}
+        Args:
+            port (int): The port number to run the server on. Defaults to 8000.
+            custom_route (Optional[str]): The custom route to use for handling commands. Defaults to "/line".
+            log_to_stream (bool): Whether to log to stdout. Defaults to True.
 
-
-def command(func: Callable[..., Awaitable[None]]):
-    async def wrapper(*args, **kwargs):
-        await func(*args, **kwargs)
-
-    setattr(wrapper, "__is_command__", True)
-    wrapper.original_function = func
-
-    return wrapper
+        Returns:
+            None
+        """
+        self._setup_logging(log_to_stream)
+        await self.setup_hook()
+        self.app.add_routes([web.post(custom_route or "/line", self._handle_request)])
+        runner = web.AppRunner(self.app)
+        await runner.setup()
+        site = TCPSite(runner=runner, port=port)
+        await site.start()
+        logging.info("Bot started at port %d", port)
+        try:
+            while True:
+                # run tasks every minute
+                asyncio.create_task(self.run_tasks())
+                await asyncio.sleep(60)
+        except asyncio.CancelledError:
+            logging.info("Bot shutting down")
+            await self.on_close()
+            await site.stop()
+            await self.app.shutdown()
+            await self.async_api_client.close()
+            await runner.cleanup()
