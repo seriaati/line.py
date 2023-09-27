@@ -22,6 +22,7 @@ from linebot.v3.webhooks import FollowEvent, MessageEvent, PostbackEvent
 from .cog import Cog
 from .context import Context
 from .exceptions import CogLoadError, CommandExecError, IntConvertError, ParamParseError
+from .ext.login.client import LineLoginAPI
 from .ext.notify.client import LineNotifyAPI
 
 pathOrClass = TypeVar("pathOrClass", str, Type[Cog])
@@ -36,6 +37,9 @@ class BaseBot:
         line_notify_client_id: Optional[str] = None,
         line_notify_client_secret: Optional[str] = None,
         line_notify_redirect_uri: Optional[str] = None,
+        line_login_client_id: Optional[str] = None,
+        line_login_client_secret: Optional[str] = None,
+        line_login_redirect_uri: Optional[str] = None,
     ) -> None:
         configuration = Configuration(access_token=access_token)
 
@@ -61,6 +65,20 @@ class BaseBot:
             )
         else:
             self.line_notify_api = None
+
+        if (
+            line_login_client_id
+            and line_login_client_secret
+            and line_login_redirect_uri
+        ):
+            self.line_login_api = LineLoginAPI(
+                line_login_client_id,
+                line_login_client_secret,
+                line_login_redirect_uri,
+                self.session,
+            )
+        else:
+            self.line_login_api = None
 
     @staticmethod
     def _setup_logging(log_to_stream: bool) -> None:
