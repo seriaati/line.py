@@ -80,14 +80,18 @@ class LineNotifyAPI:
             None
         """
         session = self._session or aiohttp.ClientSession()
+        data = {
+            "message": message,
+            "notificationDisabled": notification_disabled,
+        }
+        if image_thumbnail:
+            data["imageThumbnail"] = image_thumbnail
+        if image_full_size:
+            data["imageFullsize"] = image_full_size
+
         await session.post(
             "https://notify-api.line.me/api/notify",
-            data={
-                "message": message,
-                "imageThumbnail": image_thumbnail,
-                "imageFullsize": image_full_size,
-                "notificationDisabled": notification_disabled,
-            },
+            data=data,
             headers={"Authorization": f"Bearer {token}"},
         )
 
