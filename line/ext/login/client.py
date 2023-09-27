@@ -16,7 +16,7 @@ class LineLoginAPI:
         self.__client_id = client_id
         self.__client_secret = client_secret
         self._redirect_uri = redirect_uri
-        self._session = session or aiohttp.ClientSession()
+        self._session = session
 
     def get_oauth_uri(
         self,
@@ -59,10 +59,17 @@ class LineLoginAPI:
             "client_id": self.__client_id,
             "client_secret": self.__client_secret,
         }
-        async with self._session.post(
+
+        session = self._session or aiohttp.ClientSession()
+        async with session.post(
             "https://api.line.me/oauth2/v2.1/token", data=data
         ) as resp:
-            return (await resp.json())["access_token"]
+            access_token = (await resp.json())["access_token"]
+
+        if self._session is None:
+            await session.close()
+
+        return access_token
 
     async def verify_access_token_validity(self, access_token: str) -> bool:
         """
@@ -74,11 +81,17 @@ class LineLoginAPI:
         Returns:
             bool: True if the access token is valid, False otherwise.
         """
-        async with self._session.get(
+        session = self._session or aiohttp.ClientSession()
+        async with session.get(
             "https://api.line.me/oauth2/v2.1/verify",
             params={"access_token": access_token},
         ) as resp:
-            return resp.status == 200
+            is_valid = resp.status == 200
+
+        if self._session is None:
+            await session.close()
+
+        return is_valid
 
     async def get_user_profile(self, access_token: str) -> UserProfile:
         """
@@ -90,8 +103,14 @@ class LineLoginAPI:
         Returns:
             UserProfile: An object representing the user's profile information.
         """
-        async with self._session.get(
+        session = self._session or aiohttp.ClientSession()
+        async with session.get(
             "https://api.line.me/v2/profile",
             headers={"Authorization": f"Bearer {access_token}"},
         ) as resp:
-            return UserProfile(**(await resp.json()))
+            user_profile = UserProfile(**(await resp.json()))
+
+        if self._session is None:
+            await session.close()
+
+        return user_profile

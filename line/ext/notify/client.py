@@ -14,7 +14,7 @@ class LineNotifyAPI:
         self.__client_id = client_id
         self.__client_secret = client_secret
         self._redirect_uri = redirect_uri
-        self._session = session or aiohttp.ClientSession()
+        self._session = session
 
     def get_oauth_uri(self, state: str) -> str:
         """
@@ -46,10 +46,16 @@ class LineNotifyAPI:
             "client_id": self.__client_id,
             "client_secret": self.__client_secret,
         }
-        async with self._session.post(
+        session = self._session or aiohttp.ClientSession()
+        async with session.post(
             "https://notify-bot.line.me/oauth/token", data=data
         ) as resp:
-            return (await resp.json())["access_token"]
+            access_token = (await resp.json())["access_token"]
+
+        if self._session is None:
+            await session.close()
+
+        return access_token
 
     async def notify(
         self,
@@ -77,7 +83,8 @@ class LineNotifyAPI:
         Returns:
             None
         """
-        await self._session.post(
+        session = self._session or aiohttp.ClientSession()
+        await session.post(
             "https://notify-api.line.me/api/notify",
             data={
                 "message": message,
@@ -89,3 +96,6 @@ class LineNotifyAPI:
             },
             headers={"Authorization": f"Bearer {token}"},
         )
+
+        if self._session is None:
+            await session.close()
