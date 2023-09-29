@@ -1,9 +1,15 @@
 from typing import Any
 
-import aiohttp
+
+class LineAPIError(Exception):
+    pass
 
 
-class CommandExecError(Exception):
+class LineError(Exception):
+    pass
+
+
+class CommandExecError(LineError):
     def __init__(self, command_name: str, e: Exception) -> None:
         self.command_name = command_name
         self.e = e
@@ -12,7 +18,7 @@ class CommandExecError(Exception):
         return f"An error occurred while executing the command {self.command_name}: {self.e}"
 
 
-class ParamParseError(Exception):
+class ParamParseError(LineError):
     def __init__(self, command_name: str, e: Exception) -> None:
         self.command_name = command_name
         self.e = e
@@ -21,7 +27,7 @@ class ParamParseError(Exception):
         return f"An error occurred while parsing the parameters of the command {self.command_name}: {self.e}"
 
 
-class IntConvertError(Exception):
+class IntConvertError(LineError):
     def __init__(self, param_name: str, value: Any) -> None:
         self.param_name = param_name
         self.value = value
@@ -30,7 +36,7 @@ class IntConvertError(Exception):
         return f"The parameter {self.param_name} is type hinted as int, but the value {self.value} cannot be converted to int"
 
 
-class CogLoadError(Exception):
+class CogLoadError(LineError):
     def __init__(self, cog_path, e: Exception | str) -> None:
         self.cog_path = cog_path
         self.e = e
@@ -39,32 +45,32 @@ class CogLoadError(Exception):
         return f"An error occurred while loading the cog {self.cog_path}: {self.e}"
 
 
-class BadRequest(Exception):
+class BadRequest(LineAPIError):
     def __str__(self) -> str:
         return "400: There was a problem with the request. Check the request parameters and JSON format."
 
 
-class Unauthorized(Exception):
+class Unauthorized(LineAPIError):
     def __str__(self) -> str:
         return "401: Check that the authorization header is correct."
 
 
-class Forbidden(Exception):
+class Forbidden(LineAPIError):
     def __str__(self) -> str:
         return "403: You are not authorized to use the API. Confirm that your account or plan is authorized to use the API."
 
 
-class PayloadTooLarge(Exception):
+class PayloadTooLarge(LineAPIError):
     def __str__(self) -> str:
         return "413: Request exceeds the max size of 2MB. Make the request smaller than 2MB and try again."
 
 
-class TooManyRequests(Exception):
+class TooManyRequests(LineAPIError):
     def __str__(self) -> str:
         return "429: Temporarily restricting requests because rate-limit has been exceeded by a large number of requests."
 
 
-class InternalServerEror(Exception):
+class InternalServerEror(LineAPIError):
     def __str__(self) -> str:
         return "500: There was a temporary error on the API server."
 
