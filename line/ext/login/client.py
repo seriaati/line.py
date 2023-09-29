@@ -2,6 +2,7 @@ from typing import Literal, Optional
 
 import aiohttp
 
+from ...exceptions import raise_for_status
 from .response import UserProfile
 
 
@@ -64,6 +65,7 @@ class LineLoginAPI:
         async with session.post(
             "https://api.line.me/oauth2/v2.1/token", data=data
         ) as resp:
+            raise_for_status(resp.status)
             access_token = (await resp.json())["access_token"]
 
         if self._session is None:
@@ -108,6 +110,7 @@ class LineLoginAPI:
             "https://api.line.me/v2/profile",
             headers={"Authorization": f"Bearer {access_token}"},
         ) as resp:
+            raise_for_status(resp.status)
             user_profile = UserProfile(**(await resp.json()))
 
         if self._session is None:

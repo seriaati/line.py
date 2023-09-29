@@ -2,6 +2,8 @@ from typing import Optional
 
 import aiohttp
 
+from ...exceptions import raise_for_status
+
 
 class LineNotifyAPI:
     def __init__(
@@ -50,6 +52,7 @@ class LineNotifyAPI:
         async with session.post(
             "https://notify-bot.line.me/oauth/token", data=data
         ) as resp:
+            raise_for_status(resp.status)
             access_token = (await resp.json())["access_token"]
 
         if self._session is None:
@@ -89,11 +92,12 @@ class LineNotifyAPI:
         if image_full_size:
             data["imageFullsize"] = image_full_size
 
-        await session.post(
+        async with session.post(
             "https://notify-api.line.me/api/notify",
             data=data,
             headers={"Authorization": f"Bearer {token}"},
-        )
+        ) as resp:
+            raise_for_status(resp.status)
 
         if self._session is None:
             await session.close()
