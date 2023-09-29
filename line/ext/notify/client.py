@@ -40,6 +40,9 @@ class LineNotifyAPI:
 
         Returns:
             str: The access token retrieved from the LINE Notify API.
+
+        Raises:
+            LineAPIError: If the request fails.
         """
         data = {
             "grant_type": "authorization_code",
@@ -81,6 +84,9 @@ class LineNotifyAPI:
 
         Returns:
             None
+
+        Raises:
+            LineAPIError: If the request fails.
         """
         session = self._session or aiohttp.ClientSession()
         data = {

@@ -52,6 +52,9 @@ class LineLoginAPI:
 
         Returns:
             str: The access token.
+
+        Raises:
+            LineAPIError: If the request fails.
         """
         data = {
             "grant_type": "authorization_code",
@@ -104,6 +107,9 @@ class LineLoginAPI:
 
         Returns:
             UserProfile: An object representing the user's profile information.
+
+        Raises:
+            LineAPIError: If the request fails.
         """
         session = self._session or aiohttp.ClientSession()
         async with session.get(
