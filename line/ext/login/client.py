@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal
 
 import aiohttp
 
@@ -12,12 +12,10 @@ class LineLoginAPI:
         client_id: str,
         client_secret: str,
         redirect_uri: str,
-        session: Optional[aiohttp.ClientSession] = None,
     ):
         self.__client_id = client_id
         self.__client_secret = client_secret
         self._redirect_uri = redirect_uri
-        self._session = session
 
     def get_oauth_uri(
         self,
@@ -64,15 +62,12 @@ class LineLoginAPI:
             "client_secret": self.__client_secret,
         }
 
-        session = self._session or aiohttp.ClientSession()
-        async with session.post(
-            "https://api.line.me/oauth2/v2.1/token", data=data
-        ) as resp:
-            raise_for_status(resp.status)
-            access_token = (await resp.json())["access_token"]
-
-        if self._session is None:
-            await session.close()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                "https://api.line.me/oauth2/v2.1/token", data=data
+            ) as resp:
+                raise_for_status(resp.status)
+                access_token = (await resp.json())["access_token"]
 
         return access_token
 
@@ -86,15 +81,12 @@ class LineLoginAPI:
         Returns:
             bool: True if the access token is valid, False otherwise.
         """
-        session = self._session or aiohttp.ClientSession()
-        async with session.get(
-            "https://api.line.me/oauth2/v2.1/verify",
-            params={"access_token": access_token},
-        ) as resp:
-            is_valid = resp.status == 200
-
-        if self._session is None:
-            await session.close()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://api.line.me/oauth2/v2.1/verify",
+                params={"access_token": access_token},
+            ) as resp:
+                is_valid = resp.status == 200
 
         return is_valid
 
@@ -111,15 +103,12 @@ class LineLoginAPI:
         Raises:
             LineAPIError: If the request fails.
         """
-        session = self._session or aiohttp.ClientSession()
-        async with session.get(
-            "https://api.line.me/v2/profile",
-            headers={"Authorization": f"Bearer {access_token}"},
-        ) as resp:
-            raise_for_status(resp.status)
-            user_profile = UserProfile(**(await resp.json()))
-
-        if self._session is None:
-            await session.close()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://api.line.me/v2/profile",
+                headers={"Authorization": f"Bearer {access_token}"},
+            ) as resp:
+                raise_for_status(resp.status)
+                user_profile = UserProfile(**(await resp.json()))
 
         return user_profile

@@ -11,12 +11,10 @@ class LineNotifyAPI:
         client_id: str,
         client_secret: str,
         redirect_uri: str,
-        session: Optional[aiohttp.ClientSession] = None,
     ):
         self.__client_id = client_id
         self.__client_secret = client_secret
         self._redirect_uri = redirect_uri
-        self._session = session
 
     def get_oauth_uri(self, state: str) -> str:
         """
@@ -51,15 +49,12 @@ class LineNotifyAPI:
             "client_id": self.__client_id,
             "client_secret": self.__client_secret,
         }
-        session = self._session or aiohttp.ClientSession()
-        async with session.post(
-            "https://notify-bot.line.me/oauth/token", data=data
-        ) as resp:
-            raise_for_status(resp.status)
-            access_token = (await resp.json())["access_token"]
-
-        if self._session is None:
-            await session.close()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                "https://notify-bot.line.me/oauth/token", data=data
+            ) as resp:
+                raise_for_status(resp.status)
+                access_token = (await resp.json())["access_token"]
 
         return access_token
 
@@ -88,7 +83,6 @@ class LineNotifyAPI:
         Raises:
             LineAPIError: If the request fails.
         """
-        session = self._session or aiohttp.ClientSession()
         data = {
             "message": message,
             "notificationDisabled": notification_disabled,
@@ -98,12 +92,10 @@ class LineNotifyAPI:
         if image_full_size:
             data["imageFullsize"] = image_full_size
 
-        async with session.post(
-            "https://notify-api.line.me/api/notify",
-            data=data,
-            headers={"Authorization": f"Bearer {token}"},
-        ) as resp:
-            raise_for_status(resp.status)
-
-        if self._session is None:
-            await session.close()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                "https://notify-api.line.me/api/notify",
+                data=data,
+                headers={"Authorization": f"Bearer {token}"},
+            ) as resp:
+                raise_for_status(resp.status)
