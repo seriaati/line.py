@@ -69,3 +69,18 @@ class URIAction(messaging.URIAction):
         super().__init__(
             uri=uri, label=label, altUri=messaging.AltUri(desktop=desktop_alt_uri)
         )
+
+
+class RichMenuSwitchAction(messaging.RichMenuSwitchAction):
+    """
+    https://developers.line.biz/en/reference/messaging-api/#richmenu-switch-action
+    """
+
+    def __init__(
+        self, rich_menu_alias_id: str, *, data: str, label: Optional[str] = None
+    ):
+        if len(label or "") > 20:
+            raise ValueError("label must be less than or equal to 20 characters")
+        if len(data) > 300:
+            raise ValueError("data must be less than or equal to 300 characters")
+        super().__init__(data=data, label=label, richMenuAliasId=rich_menu_alias_id)
