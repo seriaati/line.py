@@ -215,6 +215,7 @@ class BaseBot:
         self,
         rich_menu_request: RichMenuRequest,
         rich_menu_img_path: str,
+        *,
         alias: Optional[str] = None,
     ) -> str:
         """
