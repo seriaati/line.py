@@ -1,6 +1,6 @@
 from typing import Optional, Sequence
 
-import linebot.v3.messaging as messaging
+from linebot.v3 import messaging
 
 
 class QuickReplyItem(messaging.QuickReplyItem):

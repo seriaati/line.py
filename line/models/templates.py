@@ -1,6 +1,6 @@
 from typing import Literal, Optional, Sequence
 
-from linebot.v3 import messaging as messaging
+from linebot.v3 import messaging
 
 
 class CarouselColumn(messaging.CarouselColumn):
