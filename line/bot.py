@@ -22,6 +22,7 @@ from linebot.v3.messaging import (
     AsyncMessagingApi,
     AsyncMessagingApiBlob,
     Configuration,
+    CreateRichMenuAliasRequest,
     Message,
     PushMessageRequest,
     RichMenuBulkLinkRequest,
@@ -211,7 +212,10 @@ class BaseBot:
         await self.line_bot_api.set_default_rich_menu(result.rich_menu_id)
 
     async def create_rich_menu(
-        self, rich_menu_request: RichMenuRequest, rich_menu_img_path: str
+        self,
+        rich_menu_request: RichMenuRequest,
+        rich_menu_img_path: str,
+        alias: Optional[str] = None,
     ) -> str:
         """
         Creates a new rich menu with the specified request and image, and returns the ID of the created rich menu.
@@ -219,6 +223,7 @@ class BaseBot:
         Args:
             rich_menu_request (RichMenuRequest): The request object containing the details of the rich menu to be created.
             rich_menu_img_path (str): The file path of the image to be used as the rich menu image.
+            alias (Optional[str], optional): The alias to be created for the rich menu. Defaults to None.
 
         Returns:
             str: The ID of the created rich menu.
@@ -230,6 +235,8 @@ class BaseBot:
                 body=bytearray(f.read()),
                 _headers={"Content-Type": "image/png"},
             )
+        if alias:
+            await self.create_rich_menu_alias(result.rich_menu_id, alias)
         return result.rich_menu_id
 
     async def link_rich_menu_to_users(self, rich_menu_id: str, user_ids: List[str]):
@@ -245,6 +252,21 @@ class BaseBot:
         """
         await self.line_bot_api.link_rich_menu_id_to_users(
             RichMenuBulkLinkRequest(richMenuId=rich_menu_id, userIds=user_ids)
+        )
+
+    async def create_rich_menu_alias(self, rich_menu_id: str, alias: str) -> None:
+        """
+        Creates an alias for the specified rich menu.
+
+        Args:
+            rich_menu_id (str): The ID of the rich menu to be aliased.
+            alias (str): The alias to be created.
+
+        Returns:
+            None
+        """
+        await self.line_bot_api.create_rich_menu_alias(
+            CreateRichMenuAliasRequest(richMenuAliasId=alias, richMenuId=rich_menu_id)
         )
 
     # user-defined methods
