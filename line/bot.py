@@ -27,6 +27,7 @@ from linebot.v3.messaging import (
     PushMessageRequest,
     RichMenuBulkLinkRequest,
     RichMenuRequest,
+    UpdateRichMenuAliasRequest,
 )
 from linebot.v3.webhook import Event, InvalidSignatureError, WebhookParser
 from linebot.v3.webhooks import FollowEvent, MessageEvent, PostbackEvent
@@ -268,6 +269,24 @@ class BaseBot:
         """
         await self.line_bot_api.create_rich_menu_alias(
             CreateRichMenuAliasRequest(richMenuAliasId=alias, richMenuId=rich_menu_id)
+        )
+
+    async def update_rich_menu_alias(self, rich_menu_id: str, alias: str) -> None:
+        """
+        Updates the alias of the specified rich menu.
+
+        Args:
+            rich_menu_id (str): The ID of the rich menu to be aliased.
+            alias (str): The alias to be created.
+
+        Returns:
+            None
+        """
+        await self.line_bot_api.update_rich_menu_alias(
+            rich_menu_alias_id=alias,
+            update_rich_menu_alias_request=UpdateRichMenuAliasRequest(
+                richMenuId=rich_menu_id
+            ),
         )
 
     # user-defined methods
