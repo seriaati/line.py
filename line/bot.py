@@ -18,6 +18,7 @@ from typing import (
 from aiohttp import web
 from aiohttp.web_runner import TCPSite
 from linebot.v3.messaging import (
+    ApiException,
     AsyncApiClient,
     AsyncMessagingApi,
     AsyncMessagingApiBlob,
@@ -238,7 +239,11 @@ class BaseBot:
                 _headers={"Content-Type": "image/png"},
             )
         if alias:
-            await self.create_rich_menu_alias(result.rich_menu_id, alias)
+            try:
+                await self.create_rich_menu_alias(result.rich_menu_id, alias)
+            except ApiException as e:
+                if e.status == 400:
+                    await self.update_rich_menu_alias(result.rich_menu_id, alias)
         return result.rich_menu_id
 
     async def link_rich_menu_to_users(self, rich_menu_id: str, user_ids: List[str]):
