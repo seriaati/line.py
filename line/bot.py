@@ -28,6 +28,7 @@ from linebot.v3.messaging import (
     PushMessageRequest,
     RichMenuBulkLinkRequest,
     RichMenuRequest,
+    RichMenuResponse,
     UpdateRichMenuAliasRequest,
 )
 from linebot.v3.webhook import Event, InvalidSignatureError, WebhookParser
@@ -293,6 +294,38 @@ class BaseBot:
                 richMenuId=rich_menu_id
             ),
         )
+
+    async def delete_all_rich_menus(self) -> None:
+        """
+        Deletes all rich menus.
+
+        Returns:
+            None
+        """
+        rich_menus = await self.get_rich_menu_list()
+        for rich_menu in rich_menus:
+            await self.delete_rich_menu(rich_menu.rich_menu_id)
+
+    async def delete_rich_menu(self, rich_menu_id: str) -> None:
+        """
+        Deletes the specified rich menu.
+
+        Args:
+            rich_menu_id (str): The ID of the rich menu to be deleted.
+
+        Returns:
+            None
+        """
+        await self.line_bot_api.delete_rich_menu(rich_menu_id=rich_menu_id)
+
+    async def get_rich_menu_list(self) -> List[RichMenuResponse]:
+        """
+        Gets the list of rich menus.
+
+        Returns:
+            List[RichMenuResponse]: The list of rich menus.
+        """
+        return (await self.line_bot_api.get_rich_menu_list()).richmenus
 
     # user-defined methods
 
