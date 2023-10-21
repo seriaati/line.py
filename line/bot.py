@@ -52,6 +52,7 @@ class BaseBot:
         self.cogs: List["Cog"] = []
         self.app = web.Application()
         self.session = self.async_api_client.rest_client.pool_manager
+        self.task_interval = 60
 
     @staticmethod
     def _setup_logging(log_to_stream: bool) -> None:
@@ -119,7 +120,10 @@ class BaseBot:
                 elif value.lower() == "false":
                     value = False
 
-            if param.kind == inspect.Parameter.KEYWORD_ONLY:
+            if param.kind in (
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                inspect.Parameter.KEYWORD_ONLY,
+            ):
                 kwargs[param.name] = value
             else:
                 args.append(value)
@@ -442,9 +446,8 @@ class BaseBot:
         logging.info("Bot started at port %d", port)
         try:
             while True:
-                # run tasks every minute
                 asyncio.create_task(self.run_tasks())
-                await asyncio.sleep(60)
+                await asyncio.sleep(self.task_interval)
         except asyncio.CancelledError:
             logging.info("Bot shutting down")
             await self.on_close()
