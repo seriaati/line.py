@@ -35,7 +35,13 @@ from linebot.v3.webhook import Event, InvalidSignatureError, WebhookParser
 from linebot.v3.webhooks import FollowEvent, MessageEvent, PostbackEvent
 
 from .context import Context
-from .exceptions import CogLoadError, CommandExecError, IntConvertError, ParamParseError
+from .exceptions import (
+    CogLoadError,
+    CommandExecError,
+    FloatConvertError,
+    IntConvertError,
+    ParamParseError,
+)
 
 pathOrClass = TypeVar("pathOrClass", str, Type["Cog"])
 
@@ -112,6 +118,13 @@ class BaseBot:
                 if not value.isdigit():
                     raise IntConvertError(param.name, value)
                 value = int(value)
+            elif (
+                param.annotation == float or param.annotation == Optional[float]
+            ) and isinstance(value, str):
+                try:
+                    value = float(value)
+                except ValueError:
+                    raise FloatConvertError(param.name, value)
             elif (
                 param.annotation == bool or param.annotation == Optional[bool]
             ) and isinstance(value, str):

@@ -36,6 +36,15 @@ class IntConvertError(LineError):
         return f"The parameter {self.param_name} is type hinted as int, but the value {self.value} cannot be converted to int"
 
 
+class FloatConvertError(LineError):
+    def __init__(self, param_name: str, value: Any) -> None:
+        self.param_name = param_name
+        self.value = value
+
+    def __str__(self) -> str:
+        return f"The parameter {self.param_name} is type hinted as float, but the value {self.value} cannot be converted to float"
+
+
 class CogLoadError(LineError):
     def __init__(self, cog_path, e: Exception | str) -> None:
         self.cog_path = cog_path
