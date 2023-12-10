@@ -17,6 +17,7 @@ class TextMessage(messaging.TextMessage):
         *,
         quick_reply: Optional[messaging.QuickReply] = None,
         emojis: Optional[Sequence[Emoji]] = None,
+        quote_token: Optional[str] = None,
     ) -> None:
         if len(text) > 5000:
             raise ValueError("text must be less than or equal to 5000 characters")
@@ -34,7 +35,12 @@ class TextMessage(messaging.TextMessage):
                     )
                 )
 
-        super().__init__(text=text, quickReply=quick_reply, emojis=line_emojis)
+        super().__init__(
+            text=text,
+            quickReply=quick_reply,
+            emojis=line_emojis,
+            quoteToken=quote_token,
+        )
 
 
 class TemplateMessage(messaging.TemplateMessage):
