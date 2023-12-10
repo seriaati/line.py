@@ -124,7 +124,7 @@ class BaseBot:
                 try:
                     value = float(value)
                 except ValueError:
-                    raise FloatConvertError(param.name, value)
+                    raise FloatConvertError(param.name, value) from None
             elif (
                 param.annotation == bool or param.annotation == Optional[bool]
             ) and isinstance(value, str):
@@ -205,12 +205,12 @@ class BaseBot:
                 try:
                     args, kwargs = self._parse_params(params, data)  # type: ignore
                 except Exception as e:
-                    raise ParamParseError(cmd, e)
+                    raise ParamParseError(cmd, e) from e
 
                 try:
                     await func(ctx, *args, **kwargs)
                 except Exception as e:
-                    raise CommandExecError(cmd, e)
+                    raise CommandExecError(cmd, e) from e
 
                 break
 
@@ -390,7 +390,7 @@ class BaseBot:
             else:
                 self.cogs.append(path_or_class(self))  # type: ignore
         except Exception as e:
-            raise CogLoadError(path_or_class, e)
+            raise CogLoadError(path_or_class, e) from e
 
     # messaging api
 
