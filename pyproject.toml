@@ -1,22 +1,20 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "line.py"
+[tool.poetry]
+name = "line-py"
 version = "0.8.16"
-authors = [
-  { name="Seria Ati", email="seria.ati@gmail.com" },
-]
-description = "Python 非阻塞式 LINE Messaging API 串接"
+description = "Async API wrapper for LINE Messaging API written in Python."
+authors = ["seriaati <seria.ati@gmail.com>"]
+license = "GPL-3.0"
 readme = "README.md"
-requires-python = ">=3.10"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GPL-3.0 License",
-    "Operating System :: OS Independent",
-]
-dependencies = [
-  "python-dotenv>=1.0.0",
-  "line-bot-sdk>=3.4.0",
-]
+packages = [{include = "line"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+line-bot-sdk = "^3.5.1"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
