@@ -49,12 +49,11 @@ class LineNotifyAPI:
             "client_id": self.__client_id,
             "client_secret": self.__client_secret,
         }
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://notify-bot.line.me/oauth/token", data=data
-            ) as resp:
-                raise_for_status(resp.status)
-                access_token = (await resp.json())["access_token"]
+        async with aiohttp.ClientSession() as session, session.post(
+            "https://notify-bot.line.me/oauth/token", data=data
+        ) as resp:
+            raise_for_status(resp.status)
+            access_token = (await resp.json())["access_token"]
 
         return access_token
 
@@ -92,10 +91,9 @@ class LineNotifyAPI:
         if image_full_size:
             data["imageFullsize"] = image_full_size
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://notify-api.line.me/api/notify",
-                data=data,
-                headers={"Authorization": f"Bearer {token}"},
-            ) as resp:
-                raise_for_status(resp.status)
+        async with aiohttp.ClientSession() as session, session.post(
+            "https://notify-api.line.me/api/notify",
+            data=data,
+            headers={"Authorization": f"Bearer {token}"},
+        ) as resp:
+            raise_for_status(resp.status)

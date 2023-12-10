@@ -62,12 +62,11 @@ class LineLoginAPI:
             "client_secret": self.__client_secret,
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://api.line.me/oauth2/v2.1/token", data=data
-            ) as resp:
-                raise_for_status(resp.status)
-                access_token = (await resp.json())["access_token"]
+        async with aiohttp.ClientSession() as session, session.post(
+            "https://api.line.me/oauth2/v2.1/token", data=data
+        ) as resp:
+            raise_for_status(resp.status)
+            access_token = (await resp.json())["access_token"]
 
         return access_token
 
@@ -81,12 +80,11 @@ class LineLoginAPI:
         Returns:
             bool: True if the access token is valid, False otherwise.
         """
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://api.line.me/oauth2/v2.1/verify",
-                params={"access_token": access_token},
-            ) as resp:
-                is_valid = resp.status == 200
+        async with aiohttp.ClientSession() as session, session.get(
+            "https://api.line.me/oauth2/v2.1/verify",
+            params={"access_token": access_token},
+        ) as resp:
+            is_valid = resp.status == 200
 
         return is_valid
 
@@ -103,12 +101,11 @@ class LineLoginAPI:
         Raises:
             LineAPIError: If the request fails.
         """
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://api.line.me/v2/profile",
-                headers={"Authorization": f"Bearer {access_token}"},
-            ) as resp:
-                raise_for_status(resp.status)
-                user_profile = UserProfile(**(await resp.json()))
+        async with aiohttp.ClientSession() as session, session.get(
+            "https://api.line.me/v2/profile",
+            headers={"Authorization": f"Bearer {access_token}"},
+        ) as resp:
+            raise_for_status(resp.status)
+            user_profile = UserProfile(**(await resp.json()))
 
         return user_profile
