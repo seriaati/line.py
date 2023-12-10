@@ -220,21 +220,6 @@ class BaseBot:
 
     # rich menu
 
-    async def set_rich_menu(
-        self, rich_menu_request: RichMenuRequest, rich_menu_img_path: str
-    ) -> None:
-        logging.warning(
-            "set_rich_menu is deprecated, use create_rich_menu, then set it as default with `line_bot_api.set_default_rich_menu(rich_menu_id)` instead"
-        )
-        result = await self.line_bot_api.create_rich_menu(rich_menu_request)
-        with open(rich_menu_img_path, "rb") as f:
-            await self.blob_api.set_rich_menu_image(
-                result.rich_menu_id,
-                body=bytearray(f.read()),
-                _headers={"Content-Type": "image/png"},
-            )
-        await self.line_bot_api.set_default_rich_menu(result.rich_menu_id)
-
     async def create_rich_menu(
         self,
         rich_menu_request: RichMenuRequest,
