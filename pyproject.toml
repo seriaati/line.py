@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "line-py"
-version = "0.8.16"
+version = "0.8.17"
 description = "Async API wrapper for LINE Messaging API written in Python."
 authors = ["seriaati <seria.ati@gmail.com>"]
 license = "GPL-3.0"
