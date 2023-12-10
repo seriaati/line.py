@@ -173,12 +173,16 @@ class BaseBot:
 
     async def on_postback(self, event: PostbackEvent) -> None:
         await self.process_command(
-            event.postback.data, event.source.user_id, event.reply_token  # type: ignore
+            event.postback.data,
+            event.source.user_id,  # type: ignore
+            event.reply_token,  # type: ignore
         )
 
     async def on_message(self, event: MessageEvent) -> None:
         await self.process_command(
-            event.message.text, event.source.user_id, event.reply_token  # type: ignore
+            event.message.text,  # type: ignore
+            event.source.user_id,  # type: ignore
+            event.reply_token,  # type: ignore
         )
 
     async def on_follow(self, event: FollowEvent) -> None:
