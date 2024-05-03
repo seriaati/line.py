@@ -5,7 +5,7 @@ license = "GPL-3.0"
 name = "line-py"
 packages = [{include = "line"}]
 readme = "README.md"
-version = "0.8.17"
+version = "0.8.18"
 
 [tool.poetry.dependencies]
 line-bot-sdk = "^3.5.1"
