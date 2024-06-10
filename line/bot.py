@@ -55,7 +55,7 @@ class BaseBot:
         self.blob_api = AsyncMessagingApiBlob(self.async_api_client)
         self.webhook_parser = WebhookParser(channel_secret)
 
-        self.cogs: List["Cog"] = []
+        self.cogs: List[Cog] = []
         self.app = web.Application()
         self.session = self.async_api_client.rest_client.pool_manager
         self.task_interval = 60
