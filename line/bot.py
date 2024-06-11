@@ -459,8 +459,7 @@ class BaseBot:
             await runner.cleanup()
 
 
-class Bot(BaseBot):
-    ...
+class Bot(BaseBot): ...
 
 
 class Cog:
