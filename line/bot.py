@@ -113,20 +113,20 @@ class BaseBot:
             value = data.get(param.name, default)
 
             if (
-                param.annotation == int or param.annotation == Optional[int]
+                param.annotation is int or param.annotation == Optional[int]
             ) and isinstance(value, str):
                 if not value.isdigit():
                     raise IntConvertError(param.name, value)
                 value = int(value)
             elif (
-                param.annotation == float or param.annotation == Optional[float]
+                param.annotation is float or param.annotation == Optional[float]
             ) and isinstance(value, str):
                 try:
                     value = float(value)
                 except ValueError:
                     raise FloatConvertError(param.name, value) from None
             elif (
-                param.annotation == bool or param.annotation == Optional[bool]
+                param.annotation is bool or param.annotation == Optional[bool]
             ) and isinstance(value, str):
                 if value.lower() == "true":
                     value = True
