@@ -467,13 +467,13 @@ files = [
 
 [[package]]
 name = "line-bot-sdk"
-version = "3.12.0"
+version = "3.13.0"
 description = "LINE Messaging API SDK for Python"
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "line_bot_sdk-3.12.0-py2.py3-none-any.whl", hash = "sha256:03168bcbbf720343f98fcb9224d2da6a980aebc5ae6c71ff053ec86ae6ee524a"},
-    {file = "line_bot_sdk-3.12.0.tar.gz", hash = "sha256:43bb62fb8b15cd5d8455f728de01c167eeb4b9f582ba4c8be0c59d178e3439e8"},
+    {file = "line_bot_sdk-3.13.0-py2.py3-none-any.whl", hash = "sha256:8d1e0fbed05c8ca51b29978fc1510b482f419db4e02878e44869cabd30301499"},
+    {file = "line_bot_sdk-3.13.0.tar.gz", hash = "sha256:fd9b263d7e0d3a21a18eb995532bdc204bc05423ec4aa6fcb37ca3f3c8eb9c4f"},
 ]
 
 [package.dependencies]
