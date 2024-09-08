@@ -27,5 +27,5 @@ requires = ["poetry-core"]
 ignore = ["E501"]
 select = ["E", "F", "UP", "B", "SIM", "I"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F403"]
