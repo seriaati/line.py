@@ -1,3 +1,7 @@
+[project]
+license = {file = "LICENSE"}
+name = "line-py"
+
 [tool.poetry]
 authors = ["seriaati <seria.ati@gmail.com>"]
 description = "Async API wrapper for LINE Messaging API written in Python."
