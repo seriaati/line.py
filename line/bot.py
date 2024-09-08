@@ -2,6 +2,8 @@ import asyncio
 import importlib
 import inspect
 import logging
+from enum import IntEnum
+from types import UnionType
 from typing import (
     Any,
     Awaitable,
@@ -10,9 +12,11 @@ from typing import (
     List,
     Optional,
     Sequence,
-    Tuple,
     Type,
     TypeVar,
+    Union,
+    get_args,
+    get_origin,
 )
 
 from aiohttp import web
@@ -44,6 +48,14 @@ from .exceptions import (
 )
 
 pathOrClass = TypeVar("pathOrClass", str, Type["Cog"])
+
+
+class ParamType(IntEnum):
+    INTEGER = 1
+    FLOAT = 2
+    STRING = 3
+    BOOLEAN = 4
+    UNKNOWN = 5
 
 
 class BaseBot:
@@ -100,11 +112,38 @@ class BaseBot:
         return param_dict
 
     @staticmethod
+    def __get_param_type(annotation: Any) -> ParamType:
+        # Check if it's an Optional or Union with None
+        origin = get_origin(annotation)
+        args = get_args(annotation)
+
+        is_optional = False
+
+        if (origin is Union or origin is UnionType) and type(None) in args:
+            is_optional = True
+
+        if is_optional:
+            annotation = next((arg for arg in args if arg is not type(None)), None)
+
+        # Now check the base type
+        if annotation is int:
+            return ParamType.INTEGER
+        if annotation is bool:
+            return ParamType.BOOLEAN
+        if annotation is float:
+            return ParamType.FLOAT
+        if annotation is str:
+            return ParamType.STRING
+        return ParamType.UNKNOWN
+
+    @staticmethod
     def _parse_params(
-        params: Dict[str, inspect.Parameter], data: Dict[str, Optional[str]]
-    ) -> Tuple[Sequence[Any], Dict[str, Any]]:
+        params: dict[str, inspect.Parameter],
+        data: dict[str, Optional[str]],
+        annotations: dict[str, Any],
+    ) -> tuple[Sequence[Any], dict[str, Any]]:
         args: Sequence[Any] = []
-        kwargs: Dict[str, Any] = {}
+        kwargs: dict[str, Any] = {}
 
         for param in list(params.values())[2:]:
             default = (
@@ -112,32 +151,23 @@ class BaseBot:
             )
             value = data.get(param.name, default)
 
-            if (
-                param.annotation is int
-                or param.annotation == Optional[int]
-                or param.annotation == int | None
-            ) and isinstance(value, str):
-                if not value.isdigit():
-                    raise IntConvertError(param.name, value)
-                value = int(value)
-            elif (
-                param.annotation is float
-                or param.annotation == Optional[float]
-                or param.annotation == float | None
-            ) and isinstance(value, str):
-                try:
-                    value = float(value)
-                except ValueError as e:
-                    raise FloatConvertError(param.name, value) from e
-            elif (
-                param.annotation is bool
-                or param.annotation == Optional[bool]
-                or param.annotation == bool | None
-            ) and isinstance(value, str):
-                if value.lower() == "true":
-                    value = True
-                elif value.lower() == "false":
-                    value = False
+            if value is not None:
+                param_type = BaseBot.__get_param_type(annotations[param.name])
+
+                if param_type is ParamType.INTEGER:
+                    if not value.isdigit():
+                        raise IntConvertError(param.name, value)
+                    value = int(value)
+                elif param_type is ParamType.FLOAT:
+                    try:
+                        value = float(value)
+                    except ValueError as e:
+                        raise FloatConvertError(param.name, value) from e
+                elif param_type is ParamType.BOOLEAN:
+                    if value.lower() == "true":
+                        value = True
+                    elif value.lower() == "false":
+                        value = False
 
             if param.kind in (
                 inspect.Parameter.POSITIONAL_OR_KEYWORD,
@@ -146,6 +176,7 @@ class BaseBot:
                 kwargs[param.name] = value
             else:
                 args.append(value)
+
         return args, kwargs
 
     async def _handle_request(self, request: web.Request) -> web.Response:
@@ -213,7 +244,9 @@ class BaseBot:
                 sig = inspect.signature(func.original_function)
                 params = sig.parameters
                 try:
-                    args, kwargs = self._parse_params(params, data)  # type: ignore
+                    args, kwargs = self._parse_params(
+                        dict(params), data, func.__annotations__
+                    )
                 except Exception as e:
                     raise ParamParseError(cmd, e) from e
 
