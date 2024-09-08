@@ -124,7 +124,6 @@ class BaseBot:
 
         if is_optional:
             annotation = next((arg for arg in args if arg is not type(None)), None)
-        print(annotation)
 
         # Now check the base type
         if annotation == "int":
@@ -154,7 +153,6 @@ class BaseBot:
 
             if value is not None:
                 param_type = BaseBot.__get_param_type(annotations[param.name])
-                print(param.name, param_type.name)
 
                 if param_type is ParamType.INTEGER:
                     if not value.isdigit():
