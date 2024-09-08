@@ -124,15 +124,16 @@ class BaseBot:
 
         if is_optional:
             annotation = next((arg for arg in args if arg is not type(None)), None)
+        print(annotation)
 
         # Now check the base type
-        if annotation is int:
+        if annotation == "int":
             return ParamType.INTEGER
-        if annotation is bool:
+        if annotation == "bool":
             return ParamType.BOOLEAN
-        if annotation is float:
+        if annotation == "float":
             return ParamType.FLOAT
-        if annotation is str:
+        if annotation == "str":
             return ParamType.STRING
         return ParamType.UNKNOWN
 
@@ -153,6 +154,7 @@ class BaseBot:
 
             if value is not None:
                 param_type = BaseBot.__get_param_type(annotations[param.name])
+                print(param.name, param_type.name)
 
                 if param_type is ParamType.INTEGER:
                     if not value.isdigit():
@@ -245,7 +247,7 @@ class BaseBot:
                 params = sig.parameters
                 try:
                     args, kwargs = self._parse_params(
-                        dict(params), data, func.__annotations__
+                        dict(params), data, func.original_function.__annotations__
                     )
                 except Exception as e:
                     raise ParamParseError(cmd, e) from e
