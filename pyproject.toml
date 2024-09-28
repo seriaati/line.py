@@ -13,9 +13,9 @@ license = { file = "LICENSE" }
 authors = [{ "name" = "seriaati", "email" = "seria.ati@gmail.com" }]
 
 [project.urls]
-Homepage = "https://github.com/seriaati/line-py"
-Repository = "https://github.com/seriaati/line-py.git"
-Issues = "https://github.com/seriaati/line-py/issues"
+Homepage = "https://github.com/seriaati/line.py"
+Repository = "https://github.com/seriaati/line.py.git"
+Issues = "https://github.com/seriaati/line.py/issues"
 
 [build-system]
 requires = ["hatchling"]
