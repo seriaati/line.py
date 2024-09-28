@@ -1,4 +1,6 @@
-from typing import Optional, Sequence
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from linebot.v3.messaging import (
     AsyncMessagingApi,
@@ -10,10 +12,13 @@ from linebot.v3.messaging import (
 
 from .models.messages import Emoji, ImageMessage, TemplateMessage, TextMessage
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 
 class Context:
     def __init__(
-        self, *, user_id: str, api: AsyncMessagingApi, reply_token: Optional[str] = None
+        self, *, user_id: str, api: AsyncMessagingApi, reply_token: str | None = None
     ) -> None:
         self.user_id = user_id
         self.api = api
@@ -23,18 +28,28 @@ class Context:
         self,
         text: str,
         *,
-        quick_reply: Optional[QuickReply] = None,
+        quick_reply: QuickReply | None = None,
         notification_disabled: bool = False,
-        emojis: Optional[Sequence[Emoji]] = None,
+        emojis: Sequence[Emoji] | None = None,
     ) -> None:
+        """Replies with a text message.
+
+        Args:
+            text: The text to send.
+            quick_reply: The quick reply to send with the message.
+            notification_disabled: Whether to disable notification for the message.
+            emojis: The emojis to send with the message.
+
+        Raises:
+            ValueError: If the reply token is not provided.
+        """
         if self.reply_token is None:
             raise ValueError("reply_token must be provided")
+
         await self.api.reply_message(
             ReplyMessageRequest(
                 replyToken=self.reply_token,
-                messages=[
-                    TextMessage(text=text, quick_reply=quick_reply, emojis=emojis)
-                ],
+                messages=[TextMessage(text=text, quick_reply=quick_reply, emojis=emojis)],
                 notificationDisabled=notification_disabled,
             )
         )
@@ -44,20 +59,28 @@ class Context:
         alt_text: str,
         *,
         template: Template,
-        quick_reply: Optional[QuickReply] = None,
+        quick_reply: QuickReply | None = None,
         notification_disabled: bool = False,
     ) -> None:
+        """Replies with a template message.
+
+        Args:
+            alt_text: The alternative text to display if the client does not support the template message.
+            template: The template to send.
+            quick_reply: The quick reply to send with the message.
+            notification_disabled: Whether to disable notification for the message.
+
+        Raises:
+            ValueError: If the reply token is not provided.
+        """
         if self.reply_token is None:
             raise ValueError("reply_token must be provided")
+
         await self.api.reply_message(
             ReplyMessageRequest(
                 replyToken=self.reply_token,
                 messages=[
-                    TemplateMessage(
-                        alt_text=alt_text,
-                        template=template,
-                        quick_reply=quick_reply,
-                    )
+                    TemplateMessage(alt_text=alt_text, template=template, quick_reply=quick_reply)
                 ],
                 notificationDisabled=notification_disabled,
             )
@@ -66,8 +89,18 @@ class Context:
     async def reply_multiple(
         self, messages: Sequence[Message], *, notification_disabled: bool = False
     ) -> None:
+        """Replies with multiple messages.
+
+        Args:
+            messages: The messages to send.
+            notification_disabled: Whether to disable notification for the message.
+
+        Raises:
+            ValueError: If the reply token is not provided.
+        """
         if self.reply_token is None:
             raise ValueError("reply_token must be provided")
+
         await self.api.reply_message(
             ReplyMessageRequest(
                 replyToken=self.reply_token,
@@ -80,12 +113,24 @@ class Context:
         self,
         image_url: str,
         *,
-        preview_image_url: Optional[str] = None,
-        quick_reply: Optional[QuickReply] = None,
+        preview_image_url: str | None = None,
+        quick_reply: QuickReply | None = None,
         notification_disabled: bool = False,
     ) -> None:
+        """Replies with an image message.
+
+        Args:
+            image_url: The URL of the image.
+            preview_image_url: The URL of the preview image.
+            quick_reply: The quick reply to send with the message.
+            notification_disabled: Whether to disable notification for the message.
+
+        Raises:
+            ValueError: If the reply token is not provided.
+        """
         if self.reply_token is None:
             raise ValueError("reply_token must be provided")
+
         await self.api.reply_message(
             ReplyMessageRequest(
                 replyToken=self.reply_token,

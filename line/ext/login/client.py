@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Literal
 
 import aiohttp
@@ -7,12 +9,7 @@ from .response import UserProfile
 
 
 class LineLoginAPI:
-    def __init__(
-        self,
-        client_id: str,
-        client_secret: str,
-        redirect_uri: str,
-    ):
+    def __init__(self, client_id: str, client_secret: str, redirect_uri: str) -> None:
         self.__client_id = client_id
         self.__client_secret = client_secret
         self._redirect_uri = redirect_uri
@@ -21,15 +18,10 @@ class LineLoginAPI:
         self,
         state: str,
         scopes: Literal[
-            "profile",
-            "profile%20openid",
-            "profile%20openid%20email",
-            "openid",
-            "openid%20email",
+            "profile", "profile%20openid", "profile%20openid%20email", "openid", "openid%20email"
         ],
     ) -> str:
-        """
-        Returns the OAuth URI for LINE Login.
+        """Returns the OAuth URI for LINE Login.
 
         Args:
             state (str): A string that will be returned in the response to the client.
@@ -42,17 +34,13 @@ class LineLoginAPI:
         return f"{base_uri}?response_type=code&client_id={self.__client_id}&redirect_uri={self._redirect_uri}&state={state}&scope={scopes}"
 
     async def issue_access_token(self, code: str) -> str:
-        """
-        Issues an access token using the authorization code.
+        """Issues an access token using the authorization code.
 
         Args:
             code (str): The authorization code.
 
         Returns:
             str: The access token.
-
-        Raises:
-            LineAPIError: If the request fails.
         """
         data = {
             "grant_type": "authorization_code",
@@ -62,17 +50,16 @@ class LineLoginAPI:
             "client_secret": self.__client_secret,
         }
 
-        async with aiohttp.ClientSession() as session, session.post(
-            "https://api.line.me/oauth2/v2.1/token", data=data
-        ) as resp:
+        async with (
+            aiohttp.ClientSession() as session,
+            session.post("https://api.line.me/oauth2/v2.1/token", data=data) as resp,
+        ):
             raise_for_status(resp.status)
-            access_token = (await resp.json())["access_token"]
+            return (await resp.json())["access_token"]
 
-        return access_token
-
-    async def verify_access_token_validity(self, access_token: str) -> bool:
-        """
-        Verify the validity of an access token by sending a GET request to the LINE API.
+    @staticmethod
+    async def verify_access_token_validity(access_token: str) -> bool:
+        """Verify the validity of an access token by sending a GET request to the LINE API.
 
         Args:
             access_token (str): The access token to verify.
@@ -80,32 +67,30 @@ class LineLoginAPI:
         Returns:
             bool: True if the access token is valid, False otherwise.
         """
-        async with aiohttp.ClientSession() as session, session.get(
-            "https://api.line.me/oauth2/v2.1/verify",
-            params={"access_token": access_token},
-        ) as resp:
-            is_valid = resp.status == 200
+        async with (
+            aiohttp.ClientSession() as session,
+            session.get(
+                "https://api.line.me/oauth2/v2.1/verify", params={"access_token": access_token}
+            ) as resp,
+        ):
+            return resp.status == 200
 
-        return is_valid
-
-    async def get_user_profile(self, access_token: str) -> UserProfile:
-        """
-        Retrieves the user profile of the user associated with the given access token.
+    @staticmethod
+    async def get_user_profile(access_token: str) -> UserProfile:
+        """Retrieves the user profile of the user associated with the given access token.
 
         Args:
-            access_token (str): The access token associated with the user.
+            access_token: The access token associated with the user.
 
         Returns:
             UserProfile: An object representing the user's profile information.
-
-        Raises:
-            LineAPIError: If the request fails.
         """
-        async with aiohttp.ClientSession() as session, session.get(
-            "https://api.line.me/v2/profile",
-            headers={"Authorization": f"Bearer {access_token}"},
-        ) as resp:
+        async with (
+            aiohttp.ClientSession() as session,
+            session.get(
+                "https://api.line.me/v2/profile",
+                headers={"Authorization": f"Bearer {access_token}"},
+            ) as resp,
+        ):
             raise_for_status(resp.status)
-            user_profile = UserProfile(**(await resp.json()))
-
-        return user_profile
+            return UserProfile(**(await resp.json()))

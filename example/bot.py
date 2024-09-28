@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import os
 
@@ -9,6 +11,7 @@ load_dotenv()
 
 
 async def main() -> None:
+    """Runs the bot."""
     channel_secret = os.getenv("CHANNEL_SECRET")
     access_token = os.getenv("ACCESS_TOKEN")
     if not (channel_secret and access_token):

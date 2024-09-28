@@ -1,0 +1,61 @@
+line-length = 100
+target-version = "py311"
+
+[lint]
+preview = true
+ignore = [
+    "D100",
+    "PLR2004",
+    "ANN101",
+    "D107",
+    "D101",
+    "PLR0913",
+    "D104",
+    "D105",
+    "E501",
+    "ANN401",
+]
+select = [
+    "F",
+    "E",
+    "W",
+    "C90",
+    "I",
+    "N",
+    "D",
+    "ANN",
+    "UP",
+    "ASYNC",
+    "A",
+    "T20",
+    "PIE",
+    "SIM",
+    "RET",
+    "TCH",
+    "PTH",
+    "PL",
+    "DOC",
+    "RUF",
+]
+
+[lint.per-file-ignores]
+"**/__init__.py" = ["F403", "F401"]
+"example/*.py" = ["ALL"]
+"test.py" = ["ALL"]
+
+[lint.mccabe]
+max-complexity = 15
+
+[lint.pydocstyle]
+convention = "google"
+
+[lint.isort]
+required-imports = ["from __future__ import annotations"]
+split-on-trailing-comma = false
+
+[lint.flake8-type-checking]
+quote-annotations = true
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+
+[format]
+skip-magic-trailing-comma = true

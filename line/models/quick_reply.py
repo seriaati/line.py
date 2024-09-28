@@ -1,16 +1,17 @@
-from typing import Optional, Sequence
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from linebot.v3 import messaging
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 
 class QuickReplyItem(messaging.QuickReplyItem):
-    """
-    https://developers.line.biz/en/reference/messaging-api/#quick-reply-button-object
-    """
+    """https://developers.line.biz/en/reference/messaging-api/#quick-reply-button-object."""
 
-    def __init__(
-        self, action: messaging.Action, *, image_url: Optional[str] = None
-    ) -> None:
+    def __init__(self, action: messaging.Action, *, image_url: str | None = None) -> None:
         if len(image_url or "") > 2000:
             raise ValueError("imageUrl must be less than or equal to 2000 characters")
 
@@ -18,9 +19,7 @@ class QuickReplyItem(messaging.QuickReplyItem):
 
 
 class QuickReply(messaging.QuickReply):
-    """
-    https://developers.line.biz/en/reference/messaging-api/#quick-reply
-    """
+    """https://developers.line.biz/en/reference/messaging-api/#quick-reply."""
 
     def __init__(self, items: Sequence[QuickReplyItem]) -> None:
         if len(items) > 13:
