@@ -1,5 +1,5 @@
 [project]
-name = "line-py"
+name = "line-messaging-api"
 version = "0.8.19"
 description = "非阻塞式 LINE Messaging API 封裝"
 readme = "README.md"
