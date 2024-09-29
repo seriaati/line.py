@@ -10,10 +10,12 @@ from linebot.v3.messaging import (
     Template,
 )
 
-from .models.messages import Emoji, ImageMessage, TemplateMessage, TextMessage
+from .models.messages import ImageMessage, TemplateMessage, TextMessage
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from .models.emoji import Emoji
 
 
 class Context:
