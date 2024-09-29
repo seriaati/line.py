@@ -7,6 +7,7 @@ from linebot.v3.messaging import (
     Message,
     QuickReply,
     ReplyMessageRequest,
+    ShowLoadingAnimationRequest,
     Template,
 )
 
@@ -25,6 +26,23 @@ class Context:
         self.user_id = user_id
         self.api = api
         self.reply_token = reply_token
+
+    async def defer(self, duration: int = 5) -> None:
+        """Shows a loading animation for the specified duration.
+
+        Args:
+            duration: The duration of the loading animation in seconds.
+
+        Raises:
+            ValueError: If the duration is not between 5 and 60 seconds.
+        """
+        if 5 <= duration <= 60:
+            await self.api.show_loading_animation(
+                ShowLoadingAnimationRequest(chatId=self.user_id, loadingSeconds=duration)
+            )
+        else:
+            msg = "Duration must be between 5 and 60 seconds."
+            raise ValueError(msg)
 
     async def reply_text(
         self,
