@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.11"
 
 [[package]]
@@ -266,7 +267,7 @@ wheels = [
 
 [[package]]
 name = "line-bot-sdk"
-version = "3.14.5"
+version = "3.16.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aenum" },
@@ -278,9 +279,9 @@ dependencies = [
     { name = "requests" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/92/5a/24e9d96f07bdee4182fda17e2c7f19b548cba414228cf0a0c4526ea7de26/line_bot_sdk-3.14.5.tar.gz", hash = "sha256:2048d651d67e7a552fa17ded3ad9ff3240d75eddf282ca8a7c592e33e3fef041", size = 453167 }
+sdist = { url = "https://files.pythonhosted.org/packages/ec/32/f2944c3c066ebb9a580929831c2f4b548b7bfb1681446ebe8ef2faf8153e/line_bot_sdk-3.16.0.tar.gz", hash = "sha256:3ae3352cec5f73334a8e2fd60c67b461c712af4f5485b8be2964ba17eb730ad5", size = 457108 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/83/30/2c4cb584b933d6b482e7cb713518e6568b4b76e97e549025805f84dfc49f/line_bot_sdk-3.14.5-py2.py3-none-any.whl", hash = "sha256:c5a0cd72610304a41cc4918d9fd3be2687d3ed8a1444c463f30ff9cf22056793", size = 765531 },
+    { url = "https://files.pythonhosted.org/packages/96/22/608d73c28d58d1de40edd6c4b669396a962ff4809f4660ca48fb3105fe9d/line_bot_sdk-3.16.0-py2.py3-none-any.whl", hash = "sha256:8c0e627c88a665a4579a0664a262a015723eeb46d4de9685a055f6effb266b23", size = 779824 },
 ]
 
 [[package]]
