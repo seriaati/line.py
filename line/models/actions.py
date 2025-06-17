@@ -19,13 +19,17 @@ class PostbackAction(messaging.PostbackAction):
         fill_in_text: str | None = None,
     ) -> None:
         if len(data) > 300:
-            raise ValueError("data must be less than or equal to 300 characters")
+            msg = "data must be less than or equal to 300 characters"
+            raise ValueError(msg)
         if len(display_text or "") > 300:
-            raise ValueError("displayText must be less than or equal to 300 characters")
+            msg = "displayText must be less than or equal to 300 characters"
+            raise ValueError(msg)
         if len(fill_in_text or "") > 300:
-            raise ValueError("fillInText must be less than or equal to 300 characters")
+            msg = "fillInText must be less than or equal to 300 characters"
+            raise ValueError(msg)
         if fill_in_text and input_option != "openKeyboard":
-            raise ValueError("fillInText can only be specified when inputOption is openKeyboard")
+            msg = "fillInText can only be specified when inputOption is openKeyboard"
+            raise ValueError(msg)
 
         super().__init__(
             data=data,
@@ -41,7 +45,8 @@ class MessageAction(messaging.MessageAction):
 
     def __init__(self, label: str, *, text: str) -> None:
         if len(text) > 300:
-            raise ValueError("text must be less than or equal to 300 characters")
+            msg = "text must be less than or equal to 300 characters"
+            raise ValueError(msg)
 
         super().__init__(text=text, label=label)
 
@@ -51,9 +56,11 @@ class URIAction(messaging.URIAction):
 
     def __init__(self, label: str, *, uri: str, desktop_alt_uri: str | None = None) -> None:
         if len(uri) > 1000:
-            raise ValueError("uri must be less than or equal to 1000 characters")
+            msg = "uri must be less than or equal to 1000 characters"
+            raise ValueError(msg)
         if len(desktop_alt_uri or "") > 1000:
-            raise ValueError("desktopAltUri must be less than or equal to 1000 characters")
+            msg = "desktopAltUri must be less than or equal to 1000 characters"
+            raise ValueError(msg)
 
         super().__init__(uri=uri, label=label, altUri=messaging.AltUri(desktop=desktop_alt_uri))
 
@@ -63,7 +70,9 @@ class RichMenuSwitchAction(messaging.RichMenuSwitchAction):
 
     def __init__(self, rich_menu_alias_id: str, *, data: str, label: str | None = None) -> None:
         if len(label or "") > 20:
-            raise ValueError("label must be less than or equal to 20 characters")
+            msg = "label must be less than or equal to 20 characters"
+            raise ValueError(msg)
         if len(data) > 300:
-            raise ValueError("data must be less than or equal to 300 characters")
+            msg = "data must be less than or equal to 300 characters"
+            raise ValueError(msg)
         super().__init__(data=data, label=label, richMenuAliasId=rich_menu_alias_id)

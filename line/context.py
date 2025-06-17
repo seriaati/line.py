@@ -65,7 +65,8 @@ class Context:
             ValueError: If the reply token is not provided.
         """
         if self.reply_token is None:
-            raise ValueError("reply_token must be provided")
+            msg = "reply_token must be provided"
+            raise ValueError(msg)
 
         await self.api.reply_message(
             ReplyMessageRequest(
@@ -95,7 +96,8 @@ class Context:
             ValueError: If the reply token is not provided.
         """
         if self.reply_token is None:
-            raise ValueError("reply_token must be provided")
+            msg = "reply_token must be provided"
+            raise ValueError(msg)
 
         await self.api.reply_message(
             ReplyMessageRequest(
@@ -120,7 +122,8 @@ class Context:
             ValueError: If the reply token is not provided.
         """
         if self.reply_token is None:
-            raise ValueError("reply_token must be provided")
+            msg = "reply_token must be provided"
+            raise ValueError(msg)
 
         await self.api.reply_message(
             ReplyMessageRequest(
@@ -150,7 +153,8 @@ class Context:
             ValueError: If the reply token is not provided.
         """
         if self.reply_token is None:
-            raise ValueError("reply_token must be provided")
+            msg = "reply_token must be provided"
+            raise ValueError(msg)
 
         await self.api.reply_message(
             ReplyMessageRequest(

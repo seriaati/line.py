@@ -24,7 +24,8 @@ class TextMessage(messaging.TextMessage):
         quote_token: str | None = None,
     ) -> None:
         if len(text) > 5000:
-            raise ValueError("text must be less than or equal to 5000 characters")
+            msg = "text must be less than or equal to 5000 characters"
+            raise ValueError(msg)
 
         line_emojis: Sequence[messaging.Emoji] | None = None
         if emojis:
@@ -53,7 +54,8 @@ class TemplateMessage(messaging.TemplateMessage):
         quick_reply: messaging.QuickReply | None = None,
     ) -> None:
         if len(alt_text) > 400:
-            raise ValueError("altText must be less than or equal to 400 characters")
+            msg = "altText must be less than or equal to 400 characters"
+            raise ValueError(msg)
 
         super().__init__(altText=alt_text, template=template, quickReply=quick_reply)  # type: ignore
 
@@ -69,9 +71,11 @@ class ImageMessage(messaging.ImageMessage):
         quick_reply: messaging.QuickReply | None = None,
     ) -> None:
         if len(original_content_url) > 2000:
-            raise ValueError("originalContentUrl must be less than or equal to 2000 characters")
+            msg = "originalContentUrl must be less than or equal to 2000 characters"
+            raise ValueError(msg)
         if len(preview_image_url) > 2000:
-            raise ValueError("previewImageUrl must be less than or equal to 2000 characters")
+            msg = "previewImageUrl must be less than or equal to 2000 characters"
+            raise ValueError(msg)
 
         super().__init__(
             originalContentUrl=original_content_url,

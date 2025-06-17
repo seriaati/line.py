@@ -22,15 +22,20 @@ class CarouselColumn(messaging.CarouselColumn):
         image_background_color: str | None = None,
     ) -> None:
         if (title or thumbnail_image_url) and len(text) > 60:
-            raise ValueError("The length of text must be less than or equal to 60")
+            msg = "The length of text must be less than or equal to 60"
+            raise ValueError(msg)
         if len(text) > 120:
-            raise ValueError("The length of text must be less than or equal to 120")
+            msg = "The length of text must be less than or equal to 120"
+            raise ValueError(msg)
         if len(actions) > 3:
-            raise ValueError("The number of actions must be less than or equal to 3")
+            msg = "The number of actions must be less than or equal to 3"
+            raise ValueError(msg)
         if len(title or "") > 40:
-            raise ValueError("The length of title must be less than or equal to 40")
+            msg = "The length of title must be less than or equal to 40"
+            raise ValueError(msg)
         if len(thumbnail_image_url or "") > 2000:
-            raise ValueError("The length of thumbnailImageUrl must be less than or equal to 2000")
+            msg = "The length of thumbnailImageUrl must be less than or equal to 2000"
+            raise ValueError(msg)
 
         super().__init__(
             text=text,
@@ -53,7 +58,8 @@ class CarouselTemplate(messaging.CarouselTemplate):
         image_size: Literal["cover", "contain"] = "cover",
     ) -> None:
         if len(columns) > 10:
-            raise ValueError("The number of columns must be less than or equal to 10")
+            msg = "The number of columns must be less than or equal to 10"
+            raise ValueError(msg)
 
         super().__init__(columns=columns, imageAspectRatio=image_aspect_raio, imageSize=image_size)
 
@@ -63,9 +69,11 @@ class ConfirmTemplate(messaging.ConfirmTemplate):
 
     def __init__(self, text: str, actions: Sequence[messaging.Action]) -> None:
         if len(text) > 240:
-            raise ValueError("The length of text must be less than or equal to 240")
+            msg = "The length of text must be less than or equal to 240"
+            raise ValueError(msg)
         if len(actions) > 2:
-            raise ValueError("The number of actions must be less than or equal to 2")
+            msg = "The number of actions must be less than or equal to 2"
+            raise ValueError(msg)
 
         super().__init__(text=text, actions=actions)
 
@@ -86,15 +94,20 @@ class ButtonsTemplate(messaging.ButtonsTemplate):
         default_action: messaging.Action | None = None,
     ) -> None:
         if len(actions) > 4:
-            raise ValueError("The number of actions must be less than or equal to 4")
+            msg = "The number of actions must be less than or equal to 4"
+            raise ValueError(msg)
         if (title or thumbnail_image_url) and len(text) > 60:
-            raise ValueError("The length of text must be less than or equal to 60")
+            msg = "The length of text must be less than or equal to 60"
+            raise ValueError(msg)
         if len(text) > 160:
-            raise ValueError("The length of text must be less than or equal to 160")
+            msg = "The length of text must be less than or equal to 160"
+            raise ValueError(msg)
         if len(title or "") > 40:
-            raise ValueError("The length of title must be less than or equal to 40")
+            msg = "The length of title must be less than or equal to 40"
+            raise ValueError(msg)
         if len(thumbnail_image_url or "") > 2000:
-            raise ValueError("The length of thumbnailImageUrl must be less than or equal to 2000")
+            msg = "The length of thumbnailImageUrl must be less than or equal to 2000"
+            raise ValueError(msg)
 
         super().__init__(
             text=text,
@@ -111,7 +124,8 @@ class ButtonsTemplate(messaging.ButtonsTemplate):
 class ImageCarouselColumn(messaging.ImageCarouselColumn):
     def __init__(self, image_url: str, action: messaging.Action) -> None:
         if len(image_url) > 2000:
-            raise ValueError("The length of image_url must be less than or equal to 2000")
+            msg = "The length of image_url must be less than or equal to 2000"
+            raise ValueError(msg)
 
         super().__init__(imageUrl=image_url, action=action)
 
@@ -119,6 +133,7 @@ class ImageCarouselColumn(messaging.ImageCarouselColumn):
 class ImageCarouselTemplate(messaging.ImageCarouselTemplate):
     def __init__(self, columns: Sequence[ImageCarouselColumn]) -> None:
         if len(columns) > 10:
-            raise ValueError("The number of columns must be less than or equal to 10")
+            msg = "The number of columns must be less than or equal to 10"
+            raise ValueError(msg)
 
         super().__init__(columns=columns)

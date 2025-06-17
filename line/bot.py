@@ -43,6 +43,7 @@ if TYPE_CHECKING:
     from linebot.v3.webhooks.models.source import Source
 
 PathOrClass = TypeVar("PathOrClass", str, type["Cog"])
+LOGGER = logging.getLogger(__name__)
 
 
 class ParamType(IntEnum):
@@ -178,7 +179,7 @@ class BaseBot:
             try:
                 events: list[Event] = self.webhook_parser.parse(body, signature)  # type: ignore
             except InvalidSignatureError:
-                logging.error("Invalid signature")
+                LOGGER.exception("Invalid signature")
                 return web.Response(status=400, text="Invalid signature")
 
             for event in events:
@@ -191,7 +192,7 @@ class BaseBot:
                 elif isinstance(event, UnfollowEvent):
                     await self.on_unfollow(event)
                 else:
-                    logging.error("Event type %s is not supported", type(event))
+                    LOGGER.error("Event type %s is not supported", type(event))
                     continue
         except Exception as e:
             await self.on_error(e)
@@ -211,7 +212,8 @@ class BaseBot:
             ValueError: If the event source is None.
         """
         if event.source is None:
-            raise ValueError("Event source is None")
+            msg = "Event source is None"
+            raise ValueError(msg)
 
         await self.process_command(
             event.postback.data,
@@ -229,7 +231,8 @@ class BaseBot:
             ValueError: If the event source is None.
         """
         if event.source is None:
-            raise ValueError("Event source is None")
+            msg = "Event source is None"
+            raise ValueError(msg)
 
         await self.process_command(
             event.message.text,  # type: ignore
@@ -251,13 +254,13 @@ class BaseBot:
             event: The unfollow event.
         """
 
-    async def on_error(self, error: Exception) -> None:  # noqa: PLR6301
+    async def on_error(self, error: Exception) -> None:
         """Handles an error.
 
         Args:
             error: The error that occurred.
         """
-        logging.exception(error)
+        LOGGER.error(error)
 
     # command processing
 
@@ -427,13 +430,15 @@ class BaseBot:
                     class_ for class_ in classes if issubclass(class_[1], Cog) and class_[1] != Cog
                 ]
                 if not classes:
-                    raise CogLoadError(path_or_class, "No Cog subclass found")
+                    raise CogLoadError(path_or_class, "No Cog subclass found")  # noqa: TRY301
                 if len(classes) > 1:
-                    raise CogLoadError(path_or_class, "Multiple Cog subclasses found")
+                    raise CogLoadError(path_or_class, "Multiple Cog subclasses found")  # noqa: TRY301
                 cog_class = classes[0][1]
                 self.cogs.append(cog_class(self))
             else:
                 self.cogs.append(path_or_class(self))  # type: ignore
+        except CogLoadError:
+            raise
         except Exception as e:
             raise CogLoadError(path_or_class, e) from e
 
@@ -459,7 +464,8 @@ class BaseBot:
             ValueError: If the number of messages is greater than 5.
         """
         if len(messages) > 5:
-            raise ValueError("The number of messages must be less than or equal to 5")
+            msg = "The number of messages must be less than or equal to 5"
+            raise ValueError(msg)
 
         await self.line_bot_api.push_message(
             PushMessageRequest(
@@ -489,13 +495,13 @@ class BaseBot:
         await runner.setup()
         site = TCPSite(runner=runner, port=port)
         await site.start()
-        logging.info("Bot started at port %d", port)
+        LOGGER.info("Bot started at port %d", port)
         try:
             while True:
                 self.task = asyncio.create_task(self.run_tasks())
                 await asyncio.sleep(self.task_interval)
         except asyncio.CancelledError:
-            logging.info("Bot shutting down")
+            LOGGER.info("Bot shutting down")
 
             if self.task is not None:
                 self.task.cancel()
