@@ -40,6 +40,8 @@ from .exceptions import (
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Sequence
 
+    from linebot.v3.webhooks.models.source import Source
+
 PathOrClass = TypeVar("PathOrClass", str, type["Cog"])
 
 
@@ -204,10 +206,16 @@ class BaseBot:
 
         Args:
             event: The postback event.
+
+        Raises:
+            ValueError: If the event source is None.
         """
+        if event.source is None:
+            raise ValueError("Event source is None")
+
         await self.process_command(
             event.postback.data,
-            event.source.user_id,  # type: ignore
+            event.source,
             event.reply_token,  # type: ignore
         )
 
@@ -216,10 +224,16 @@ class BaseBot:
 
         Args:
             event: The message event.
+
+        Raises:
+            ValueError: If the event source is None.
         """
+        if event.source is None:
+            raise ValueError("Event source is None")
+
         await self.process_command(
             event.message.text,  # type: ignore
-            event.source.user_id,  # type: ignore
+            event.source,
             event.reply_token,  # type: ignore
         )
 
@@ -247,12 +261,12 @@ class BaseBot:
 
     # command processing
 
-    async def process_command(self, text: str, user_id: str, reply_token: str) -> Any:
+    async def process_command(self, text: str, source: Source, reply_token: str) -> Any:
         """Processes a command from the user.
 
         Args:
             text: The text of the command.
-            user_id: The ID of the user who sent the command.
+            source: The source of the command.
             reply_token: The reply token for the command.
 
         Raises:
@@ -263,7 +277,13 @@ class BaseBot:
             The result of the command.
         """
         data = self._parse_data(text)
-        ctx = Context(user_id=user_id, api=self.line_bot_api, reply_token=reply_token)
+        ctx = Context(
+            user_id=source.user_id,  # type: ignore
+            api=self.line_bot_api,
+            reply_token=reply_token,
+            group_id=source.group_id,  # type: ignore
+            room_id=source.room_id,  # type: ignore
+        )
 
         cmd = data.get("cmd")
         if not cmd:

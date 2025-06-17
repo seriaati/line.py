@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from linebot.v3.messaging import (
@@ -19,13 +20,13 @@ if TYPE_CHECKING:
     from .models.emoji import Emoji
 
 
+@dataclass
 class Context:
-    def __init__(
-        self, *, user_id: str, api: AsyncMessagingApi, reply_token: str | None = None
-    ) -> None:
-        self.user_id = user_id
-        self.api = api
-        self.reply_token = reply_token
+    user_id: str
+    api: AsyncMessagingApi
+    reply_token: str | None = None
+    group_id: str | None = None
+    room_id: str | None = None
 
     async def defer(self, duration: int = 5) -> None:
         """Shows a loading animation for the specified duration.
