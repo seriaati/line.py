@@ -49,6 +49,9 @@ ignore = [
     "DTZ007",  # Naive datetime constructed
     "E501",    # Line too long
     "S311",    # Standard pseudo-random generators are not suitable for security/cryptographic purposes
+
+    # Project-specific ignores
+    "PLR0913", # Too many arguments
 ]
 
 [lint.per-file-ignores]
