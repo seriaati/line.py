@@ -6,7 +6,6 @@ preview = true
 ignore = [
     "D100",
     "PLR2004",
-    "ANN101",
     "D107",
     "D101",
     "PLR0913",
