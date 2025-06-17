@@ -284,8 +284,8 @@ class BaseBot:
             user_id=source.user_id,  # type: ignore
             api=self.line_bot_api,
             reply_token=reply_token,
-            group_id=source.group_id,  # type: ignore
-            room_id=source.room_id,  # type: ignore
+            group_id=getattr(source, "group_id", None),
+            room_id=getattr(source, "room_id", None),
         )
 
         cmd = data.get("cmd")
