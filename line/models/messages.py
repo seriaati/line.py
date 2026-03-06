@@ -57,7 +57,7 @@ class TemplateMessage(messaging.TemplateMessage):
             msg = "altText must be less than or equal to 400 characters"
             raise ValueError(msg)
 
-        super().__init__(altText=alt_text, template=template, quickReply=quick_reply)  # type: ignore
+        super().__init__(altText=alt_text, template=template, quickReply=quick_reply)
 
 
 class ImageMessage(messaging.ImageMessage):
