@@ -5,8 +5,16 @@
 
 ## 安裝
 
+PyPI 版本：
+
  ```bash
  pip install line-messaging-api
+ ```
+
+Git 版本：
+
+ ```bash
+ pip install git+https://github.com/seriaati/line.py
  ```
 
 ## 快速入門
@@ -50,11 +58,6 @@
 - v3 的 SDK 可能因為是從 API 自動生成 model 的關係, 有非常糟糕的 typing 問題, 使用 line.py 完全不會遇到奇怪的紅線跟需要大量使用 type: ignore 的問題
 - 學習難度高, 不易使用, 不適合新手
 - 沒有一個快速新增指令的方法, 導致程式碼很冗長
-
-## 你是不是抄襲 discord.py?
-
- 對。  
- 但是 discord.py 的程式碼太高深了我看不懂, 所以只是參考概念 (例如 cog, 一些 function 的名稱, 新增指令的方式), 然後慢慢刻出來 line.py。
 
 ## 聯絡
 
