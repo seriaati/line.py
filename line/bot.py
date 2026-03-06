@@ -357,7 +357,9 @@ class BaseBot:  # noqa: PLR0904
         """
         await self.line_bot_api.update_rich_menu_alias(
             rich_menu_alias_id=alias,
-            update_rich_menu_alias_request=messaging.UpdateRichMenuAliasRequest(richMenuId=rich_menu_id),
+            update_rich_menu_alias_request=messaging.UpdateRichMenuAliasRequest(
+                richMenuId=rich_menu_id
+            ),
         )
 
     async def delete_all_rich_menus(self) -> None:
@@ -397,7 +399,9 @@ class BaseBot:  # noqa: PLR0904
         if user_ids is ...:
             request = audience.CreateAudienceGroupRequest(description=description)
         else:
-            request = audience.CreateAudienceGroupRequest(description=description, user_ids=user_ids)
+            request = audience.CreateAudienceGroupRequest(
+                description=description, user_ids=user_ids
+            )
         return await self.audience_api.create_audience_group(request)
 
     # user-defined methods

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import aiohttp
 
 from ...exceptions import raise_for_status

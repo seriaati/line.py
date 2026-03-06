@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from line import Bot, Cog, Context, command
+from typing import TYPE_CHECKING
+
+from line import Cog, command
+
+if TYPE_CHECKING:
+    from line import Bot, Context
 
 
 class ExampleCog(Cog):

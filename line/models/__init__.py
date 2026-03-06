@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from .actions import *
 from .emoji import *
 from .messages import *
