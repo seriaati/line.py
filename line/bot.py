@@ -11,27 +11,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, get_args, get_origin
 import aiofiles
 from aiohttp import web
 from aiohttp.web_runner import TCPSite
-from linebot.v3.audience import (
-    CreateAudienceGroupRequest,
-    CreateAudienceGroupResponse,
-    ManageAudience,
-)
-from linebot.v3.messaging import (
-    ApiException,
-    AsyncApiClient,
-    AsyncMessagingApi,
-    AsyncMessagingApiBlob,
-    Configuration,
-    CreateRichMenuAliasRequest,
-    Message,
-    PushMessageRequest,
-    RichMenuBulkLinkRequest,
-    RichMenuRequest,
-    RichMenuResponse,
-    UpdateRichMenuAliasRequest,
-)
-from linebot.v3.webhook import Event, InvalidSignatureError, WebhookParser
-from linebot.v3.webhooks import FollowEvent, MessageEvent, PostbackEvent, UnfollowEvent
+from linebot.v3 import audience, messaging, webhook, webhooks
 
 from .context import Context
 from .exceptions import (
@@ -44,8 +24,6 @@ from .exceptions import (
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Sequence
-
-    from linebot.v3.webhooks.models.source import Source
 
 PathOrClass = TypeVar("PathOrClass", str, type["Cog"])
 LOGGER = logging.getLogger(__name__)
@@ -61,13 +39,13 @@ class ParamType(IntEnum):
 
 class BaseBot:  # noqa: PLR0904
     def __init__(self, *, channel_secret: str, access_token: str) -> None:
-        configuration = Configuration(access_token=access_token)
+        configuration = messaging.Configuration(access_token=access_token)
 
-        self.async_api_client = AsyncApiClient(configuration)
-        self.line_bot_api = AsyncMessagingApi(self.async_api_client)
-        self.blob_api = AsyncMessagingApiBlob(self.async_api_client)
-        self.audience_api = ManageAudience(self.async_api_client)
-        self.webhook_parser = WebhookParser(channel_secret)
+        self.async_api_client = messaging.AsyncApiClient(configuration)
+        self.line_bot_api = messaging.AsyncMessagingApi(self.async_api_client)
+        self.blob_api = messaging.AsyncMessagingApiBlob(self.async_api_client)
+        self.audience_api = audience.ManageAudience(self.async_api_client)
+        self.webhook_parser = webhook.WebhookParser(channel_secret)
 
         self.cogs: list[Cog] = []
         self.app = web.Application()
@@ -183,19 +161,19 @@ class BaseBot:  # noqa: PLR0904
             body = await request.text()
 
             try:
-                events: list[Event] = self.webhook_parser.parse(body, signature)  # type: ignore
-            except InvalidSignatureError:
+                events: list[webhook.Event] = self.webhook_parser.parse(body, signature)  # type: ignore
+            except webhook.InvalidSignatureError:
                 LOGGER.exception("Invalid signature")
                 return web.Response(status=400, text="Invalid signature")
 
             for event in events:
-                if isinstance(event, PostbackEvent):
+                if isinstance(event, webhooks.PostbackEvent):
                     await self.on_postback(event)
-                elif isinstance(event, MessageEvent):
+                elif isinstance(event, webhooks.MessageEvent):
                     await self.on_message(event)
-                elif isinstance(event, FollowEvent):
+                elif isinstance(event, webhooks.FollowEvent):
                     await self.on_follow(event)
-                elif isinstance(event, UnfollowEvent):
+                elif isinstance(event, webhooks.UnfollowEvent):
                     await self.on_unfollow(event)
                 else:
                     LOGGER.error("Event type %s is not supported", type(event))
@@ -208,7 +186,7 @@ class BaseBot:  # noqa: PLR0904
 
     # event handlers
 
-    async def on_postback(self, event: PostbackEvent) -> None:
+    async def on_postback(self, event: webhooks.PostbackEvent) -> None:
         """Handles a postback event.
 
         Args:
@@ -227,7 +205,7 @@ class BaseBot:  # noqa: PLR0904
             event.reply_token,  # type: ignore
         )
 
-    async def on_message(self, event: MessageEvent) -> None:
+    async def on_message(self, event: webhooks.MessageEvent) -> None:
         """Handles a message event.
 
         Args:
@@ -246,14 +224,14 @@ class BaseBot:  # noqa: PLR0904
             event.reply_token,  # type: ignore
         )
 
-    async def on_follow(self, event: FollowEvent) -> None:
+    async def on_follow(self, event: webhooks.FollowEvent) -> None:
         """Handles a follow event.
 
         Args:
             event: The follow event.
         """
 
-    async def on_unfollow(self, event: UnfollowEvent) -> None:
+    async def on_unfollow(self, event: webhooks.UnfollowEvent) -> None:
         """Handles an unfollow event.
 
         Args:
@@ -270,7 +248,7 @@ class BaseBot:  # noqa: PLR0904
 
     # command processing
 
-    async def process_command(self, text: str, source: Source, reply_token: str) -> Any:
+    async def process_command(self, text: str, source: webhooks.Source, reply_token: str) -> Any:
         """Processes a command from the user.
 
         Args:
@@ -322,7 +300,7 @@ class BaseBot:  # noqa: PLR0904
     # rich menu
 
     async def create_rich_menu(
-        self, request: RichMenuRequest, image_path: str, *, alias: str | None = None
+        self, request: messaging.RichMenuRequest, image_path: str, *, alias: str | None = None
     ) -> str:
         """Creates a new rich menu with the specified request and image, and returns the ID of the created rich menu.
 
@@ -343,7 +321,7 @@ class BaseBot:  # noqa: PLR0904
         if alias:
             try:
                 await self.create_rich_menu_alias(result.rich_menu_id, alias)
-            except ApiException as e:
+            except messaging.ApiException as e:
                 if e.status == 400:
                     await self.update_rich_menu_alias(result.rich_menu_id, alias)
         return result.rich_menu_id
@@ -356,7 +334,7 @@ class BaseBot:  # noqa: PLR0904
             user_ids: The list of user IDs to be linked to the rich menu.
         """
         await self.line_bot_api.link_rich_menu_id_to_users(
-            RichMenuBulkLinkRequest(richMenuId=rich_menu_id, userIds=user_ids)
+            messaging.RichMenuBulkLinkRequest(richMenuId=rich_menu_id, userIds=user_ids)
         )
 
     async def create_rich_menu_alias(self, rich_menu_id: str, alias: str) -> None:
@@ -367,7 +345,7 @@ class BaseBot:  # noqa: PLR0904
             alias: The alias to be created.
         """
         await self.line_bot_api.create_rich_menu_alias(
-            CreateRichMenuAliasRequest(richMenuAliasId=alias, richMenuId=rich_menu_id)
+            messaging.CreateRichMenuAliasRequest(richMenuAliasId=alias, richMenuId=rich_menu_id)
         )
 
     async def update_rich_menu_alias(self, rich_menu_id: str, alias: str) -> None:
@@ -379,7 +357,7 @@ class BaseBot:  # noqa: PLR0904
         """
         await self.line_bot_api.update_rich_menu_alias(
             rich_menu_alias_id=alias,
-            update_rich_menu_alias_request=UpdateRichMenuAliasRequest(richMenuId=rich_menu_id),
+            update_rich_menu_alias_request=messaging.UpdateRichMenuAliasRequest(richMenuId=rich_menu_id),
         )
 
     async def delete_all_rich_menus(self) -> None:
@@ -396,7 +374,7 @@ class BaseBot:  # noqa: PLR0904
         """
         await self.line_bot_api.delete_rich_menu(rich_menu_id=rich_menu_id)
 
-    async def get_rich_menu_list(self) -> list[RichMenuResponse]:
+    async def get_rich_menu_list(self) -> list[messaging.RichMenuResponse]:
         """Gets the list of rich menus.
 
         Returns:
@@ -406,7 +384,7 @@ class BaseBot:  # noqa: PLR0904
 
     async def create_audience_group(
         self, *, description: str, user_ids: list[str] = ...
-    ) -> CreateAudienceGroupResponse:
+    ) -> audience.CreateAudienceGroupResponse:
         """Creates a new audience group.
 
         Args:
@@ -417,9 +395,9 @@ class BaseBot:  # noqa: PLR0904
             The created audience group.
         """
         if user_ids is ...:
-            request = CreateAudienceGroupRequest(description=description)
+            request = audience.CreateAudienceGroupRequest(description=description)
         else:
-            request = CreateAudienceGroupRequest(description=description, user_ids=user_ids)
+            request = audience.CreateAudienceGroupRequest(description=description, user_ids=user_ids)
         return await self.audience_api.create_audience_group(request)
 
     # user-defined methods
@@ -471,7 +449,7 @@ class BaseBot:  # noqa: PLR0904
     async def push_message(
         self,
         to: str,
-        messages: Sequence[Message],
+        messages: Sequence[messaging.Message],
         *,
         notification_disabled: bool = False,
         custom_aggregation_units: Sequence[str] | None = None,
@@ -492,7 +470,7 @@ class BaseBot:  # noqa: PLR0904
             raise ValueError(msg)
 
         await self.line_bot_api.push_message(
-            PushMessageRequest(
+            messaging.PushMessageRequest(
                 to=to,
                 messages=messages,
                 notificationDisabled=notification_disabled,

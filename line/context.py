@@ -3,14 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from linebot.v3.messaging import (
-    AsyncMessagingApi,
-    Message,
-    QuickReply,
-    ReplyMessageRequest,
-    ShowLoadingAnimationRequest,
-    Template,
-)
+from linebot.v3 import messaging
 
 from .models.messages import ImageMessage, TemplateMessage, TextMessage
 
@@ -23,7 +16,7 @@ if TYPE_CHECKING:
 @dataclass
 class Context:
     user_id: str
-    api: AsyncMessagingApi
+    api: messaging.AsyncMessagingApi
     reply_token: str | None = None
     group_id: str | None = None
     room_id: str | None = None
@@ -39,7 +32,7 @@ class Context:
         """
         if 5 <= duration <= 60:
             await self.api.show_loading_animation(
-                ShowLoadingAnimationRequest(chatId=self.user_id, loadingSeconds=duration)
+                messaging.ShowLoadingAnimationRequest(chatId=self.user_id, loadingSeconds=duration)
             )
         else:
             msg = "Duration must be between 5 and 60 seconds."
@@ -49,7 +42,7 @@ class Context:
         self,
         text: str,
         *,
-        quick_reply: QuickReply | None = None,
+        quick_reply: messaging.QuickReply | None = None,
         notification_disabled: bool = False,
         emojis: Sequence[Emoji] | None = None,
     ) -> None:
@@ -69,7 +62,7 @@ class Context:
             raise ValueError(msg)
 
         await self.api.reply_message(
-            ReplyMessageRequest(
+            messaging.ReplyMessageRequest(
                 replyToken=self.reply_token,
                 messages=[TextMessage(text=text, quick_reply=quick_reply, emojis=emojis)],
                 notificationDisabled=notification_disabled,
@@ -80,8 +73,8 @@ class Context:
         self,
         alt_text: str,
         *,
-        template: Template,
-        quick_reply: QuickReply | None = None,
+        template: messaging.Template,
+        quick_reply: messaging.QuickReply | None = None,
         notification_disabled: bool = False,
     ) -> None:
         """Replies with a template message.
@@ -100,7 +93,7 @@ class Context:
             raise ValueError(msg)
 
         await self.api.reply_message(
-            ReplyMessageRequest(
+            messaging.ReplyMessageRequest(
                 replyToken=self.reply_token,
                 messages=[
                     TemplateMessage(alt_text=alt_text, template=template, quick_reply=quick_reply)
@@ -110,7 +103,7 @@ class Context:
         )
 
     async def reply_multiple(
-        self, messages: Sequence[Message], *, notification_disabled: bool = False
+        self, messages: Sequence[messaging.Message], *, notification_disabled: bool = False
     ) -> None:
         """Replies with multiple messages.
 
@@ -126,7 +119,7 @@ class Context:
             raise ValueError(msg)
 
         await self.api.reply_message(
-            ReplyMessageRequest(
+            messaging.ReplyMessageRequest(
                 replyToken=self.reply_token,
                 messages=messages,
                 notificationDisabled=notification_disabled,
@@ -138,7 +131,7 @@ class Context:
         image_url: str,
         *,
         preview_image_url: str | None = None,
-        quick_reply: QuickReply | None = None,
+        quick_reply: messaging.QuickReply | None = None,
         notification_disabled: bool = False,
     ) -> None:
         """Replies with an image message.
@@ -157,7 +150,7 @@ class Context:
             raise ValueError(msg)
 
         await self.api.reply_message(
-            ReplyMessageRequest(
+            messaging.ReplyMessageRequest(
                 replyToken=self.reply_token,
                 messages=[
                     ImageMessage(
