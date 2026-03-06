@@ -11,6 +11,11 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, get_args, get_origin
 import aiofiles
 from aiohttp import web
 from aiohttp.web_runner import TCPSite
+from linebot.v3.audience import (
+    CreateAudienceGroupRequest,
+    CreateAudienceGroupResponse,
+    ManageAudience,
+)
 from linebot.v3.messaging import (
     ApiException,
     AsyncApiClient,
@@ -54,13 +59,14 @@ class ParamType(IntEnum):
     UNKNOWN = 5
 
 
-class BaseBot:
+class BaseBot:  # noqa: PLR0904
     def __init__(self, *, channel_secret: str, access_token: str) -> None:
         configuration = Configuration(access_token=access_token)
 
         self.async_api_client = AsyncApiClient(configuration)
         self.line_bot_api = AsyncMessagingApi(self.async_api_client)
         self.blob_api = AsyncMessagingApiBlob(self.async_api_client)
+        self.audience_api = ManageAudience(self.async_api_client)
         self.webhook_parser = WebhookParser(channel_secret)
 
         self.cogs: list[Cog] = []
@@ -397,6 +403,24 @@ class BaseBot:
             A list of rich menus.
         """
         return (await self.line_bot_api.get_rich_menu_list()).richmenus
+
+    async def create_audience_group(
+        self, *, description: str, user_ids: list[str] = ...
+    ) -> CreateAudienceGroupResponse:
+        """Creates a new audience group.
+
+        Args:
+            description: The description of the audience group.
+            user_ids: The list of user IDs to be added to the audience group. If not provided, the audience group will be created without any users.
+
+        Returns:
+            The created audience group.
+        """
+        if user_ids is ...:
+            request = CreateAudienceGroupRequest(description=description)
+        else:
+            request = CreateAudienceGroupRequest(description=description, user_ids=user_ids)
+        return await self.audience_api.create_audience_group(request)
 
     # user-defined methods
 
