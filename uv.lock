@@ -1,11 +1,12 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.11"
 
 [[package]]
 name = "aenum"
 version = "3.1.16"
 source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/09/7a/61ed58e8be9e30c3fe518899cc78c284896d246d51381bab59b5db11e1f3/aenum-3.1.16.tar.gz", hash = "sha256:bfaf9589bdb418ee3a986d85750c7318d9d2839c1b1a1d6fe8fc53ec201cf140", size = 137693, upload-time = "2026-01-12T22:34:38.819Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e3/52/6ad8f63ec8da1bf40f96996d25d5b650fdd38f5975f8c813732c47388f18/aenum-3.1.16-py3-none-any.whl", hash = "sha256:9035092855a98e41b66e3d0998bd7b96280e85ceb3a04cc035636138a1943eaf", size = 165627, upload-time = "2025-04-25T03:17:58.89Z" },
 ]
@@ -292,7 +293,7 @@ wheels = [
 
 [[package]]
 name = "line-bot-sdk"
-version = "3.17.1"
+version = "3.22.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aenum" },
@@ -304,9 +305,9 @@ dependencies = [
     { name = "requests" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/08/ae/7be821f6d286ac4f0497caa3e4ff699f4e99ab405adf2044a5b6bc83cc71/line_bot_sdk-3.17.1.tar.gz", hash = "sha256:b4b1300fa0661dac4c98e3df9467f249b16c7f767f226614c099a48346e135ae", size = 456527, upload-time = "2025-04-25T03:30:46.52Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/41/c7/e8b07aa532669e56baab8404b213b1902678d78d7339e36dc1ecc3a91b32/line_bot_sdk-3.22.0.tar.gz", hash = "sha256:f686586a5e576449b3f8612d761fc79f726b52d817e60f60b69aac1d59e9f25d", size = 468902, upload-time = "2026-01-21T11:24:14.06Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d4/32/ed6471753080e41d61156212d0032affda2d6d615b8933d2bafc65347e14/line_bot_sdk-3.17.1-py2.py3-none-any.whl", hash = "sha256:74ac0aa0a1f67ad51661f95843b5a090dad0cb178d14ae28b7fa81af35315ab7", size = 776059, upload-time = "2025-04-25T03:30:44.224Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/9c/b03ee25728f76a1292110ed9a7b330bf0c744f0f5fc3ea9ab7db3e3fc01d/line_bot_sdk-3.22.0-py2.py3-none-any.whl", hash = "sha256:64e202330997e02fd7cfe77b51f9df812aff61dd9d0e7ba840e8ecd96c2dda67", size = 818871, upload-time = "2026-01-21T11:24:12.117Z" },
 ]
 
 [[package]]
