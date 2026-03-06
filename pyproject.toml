@@ -26,4 +26,10 @@ module-root = ""
 module-name = "line"
 
 [tool.pyright]
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false
+reportUnnecessaryComparison = true
+reportUnnecessaryContains = true
+reportUnnecessaryIsInstance = true
+reportUnnecessaryTypeIgnoreComment = true
 typeCheckingMode = "standard"
