@@ -13,6 +13,8 @@ from aiohttp import web
 from aiohttp.web_runner import TCPSite
 from linebot.v3 import audience, messaging, webhook, webhooks
 
+from line.utils import MISSING
+
 from .context import Context
 from .exceptions import (
     CogLoadError,
@@ -385,7 +387,7 @@ class BaseBot:  # noqa: PLR0904
         return (await self.line_bot_api.get_rich_menu_list()).richmenus
 
     async def create_audience_group(
-        self, *, description: str, user_ids: list[str] = ...
+        self, *, description: str, user_ids: list[str] = MISSING
     ) -> audience.CreateAudienceGroupResponse:
         """Creates a new audience group.
 
@@ -396,13 +398,11 @@ class BaseBot:  # noqa: PLR0904
         Returns:
             The created audience group.
         """
-        if user_ids is ...:
-            request = audience.CreateAudienceGroupRequest(description=description)
-        else:
-            request = audience.CreateAudienceGroupRequest(
-                description=description, user_ids=user_ids
-            )
-        return await self.audience_api.create_audience_group(request)
+        audiences = None if user_ids is MISSING else user_ids
+        request = audience.CreateAudienceGroupRequest(
+            description=description, isIfaAudience=None, uploadDescription=None, audiences=audiences
+        )
+        return await asyncio.to_thread(self.audience_api.create_audience_group, request)
 
     # user-defined methods
 
