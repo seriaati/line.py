@@ -23,6 +23,7 @@ from .exceptions import (
     IntConvertError,
     ParamParseError,
 )
+from .paginator import AudienceGroupPaginator
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Sequence
@@ -398,7 +399,7 @@ class BaseBot:  # noqa: PLR0904
 
     async def create_audience_group(
         self, *, description: str, user_ids: list[str] = MISSING
-    ) -> audience.CreateAudienceGroupResponse:
+    ) -> int:
         """Creates a new audience group.
 
         Args:
@@ -406,13 +407,45 @@ class BaseBot:  # noqa: PLR0904
             user_ids: The list of user IDs to be added to the audience group. If not provided, the audience group will be created without any users.
 
         Returns:
-            The created audience group.
+            The ID of the created audience group.
         """
         audiences = None if user_ids is MISSING else user_ids
         request = audience.CreateAudienceGroupRequest(
             description=description, isIfaAudience=None, uploadDescription=None, audiences=audiences
         )
-        return await asyncio.to_thread(self.audience_api.create_audience_group, request)
+        response = await asyncio.to_thread(self.audience_api.create_audience_group, request)
+        return response.audience_group_id  # type: ignore
+
+    async def delete_audience_group(self, audience_group_id: int) -> None:
+        """Deletes the specified audience group.
+
+        Args:
+            audience_group_id: The ID of the audience group to be deleted.
+        """
+        await asyncio.to_thread(self.audience_api.delete_audience_group, audience_group_id)
+
+    def get_audience_group_paginator(self, **kwargs: Any) -> AudienceGroupPaginator:
+        """Gets a paginator for audience groups.
+
+        Args:
+            **kwargs: Extra arguments for get_audience_groups.
+
+        Returns:
+            The audience group paginator.
+        """
+        return AudienceGroupPaginator(self.audience_api, **kwargs)
+
+    async def get_audience_group_list(self, **kwargs: Any) -> list[audience.AudienceGroup]:
+        """Gets the list of all audience groups.
+
+        Args:
+            **kwargs: Extra arguments for get_audience_groups.
+
+        Returns:
+            A list of audience groups.
+        """
+        paginator = self.get_audience_group_paginator(**kwargs)
+        return [ag async for ag in paginator]
 
     # user-defined methods
 
