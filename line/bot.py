@@ -107,13 +107,13 @@ class BaseBot:  # noqa: PLR0904
             annotation = next((arg for arg in args if arg is not type(None)), None)
 
         # Now check the base type
-        if annotation == "int":
+        if annotation == "int" or annotation is int:
             return ParamType.INTEGER
-        if annotation == "bool":
+        if annotation == "bool" or annotation is bool:
             return ParamType.BOOLEAN
-        if annotation == "float":
+        if annotation == "float" or annotation is float:
             return ParamType.FLOAT
-        if annotation == "str":
+        if annotation == "str" or annotation is str:
             return ParamType.STRING
         return ParamType.UNKNOWN
 
