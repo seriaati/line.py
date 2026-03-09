@@ -6,7 +6,7 @@ import inspect
 import logging
 from enum import IntEnum
 from types import UnionType
-from typing import TYPE_CHECKING, Any, TypeVar, Union, get_args, get_origin
+from typing import TYPE_CHECKING, Any, TypeVar, Union, get_args, get_origin, get_type_hints
 
 import aiofiles
 from aiohttp import web
@@ -288,7 +288,7 @@ class BaseBot:  # noqa: PLR0904
                     args, kwargs = self._parse_params(
                         dict(params),
                         data,
-                        func.original_function.__annotations__,  # pyright: ignore[reportFunctionMemberAccess]
+                        get_type_hints(func.original_function),  # pyright: ignore[reportFunctionMemberAccess]
                     )
                 except Exception as e:
                     raise ParamParseError(cmd, e) from e
