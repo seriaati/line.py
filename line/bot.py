@@ -328,6 +328,14 @@ class BaseBot:  # noqa: PLR0904
                     await self.update_rich_menu_alias(result.rich_menu_id, alias)
         return result.rich_menu_id
 
+    async def set_default_rich_menu(self, rich_menu_id: str) -> None:
+        """Sets the specified rich menu as the default rich menu.
+
+        Args:
+            rich_menu_id: The ID of the rich menu to be set as the default rich menu.
+        """
+        await self.line_bot_api.set_default_rich_menu(rich_menu_id=rich_menu_id)
+
     async def link_rich_menu_to_users(self, rich_menu_id: str, user_ids: list[str]) -> None:
         """Links the specified rich menu to the specified users.
 
@@ -385,6 +393,8 @@ class BaseBot:  # noqa: PLR0904
             A list of rich menus.
         """
         return (await self.line_bot_api.get_rich_menu_list()).richmenus
+
+    # audience groups
 
     async def create_audience_group(
         self, *, description: str, user_ids: list[str] = MISSING
