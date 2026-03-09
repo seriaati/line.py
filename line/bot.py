@@ -247,7 +247,7 @@ class BaseBot:  # noqa: PLR0904
         Args:
             error: The error that occurred.
         """
-        LOGGER.error(error)
+        LOGGER.error(error, exc_info=error)
 
     # command processing
 
