@@ -74,3 +74,14 @@ class RichMenuSwitchAction(messaging.RichMenuSwitchAction):
             msg = "data must be less than or equal to 300 characters"
             raise ValueError(msg)
         super().__init__(data=data, label=label, richMenuAliasId=rich_menu_alias_id)
+
+
+class ClipboardAction(messaging.ClipboardAction):
+    """https://developers.line.biz/en/reference/messaging-api/#clipboard-action."""
+
+    def __init__(self, label: str, *, clipboard_text: str) -> None:
+        if len(clipboard_text) > 1000:
+            msg = "clipboardText must be less than or equal to 1000 characters"
+            raise ValueError(msg)
+
+        super().__init__(label=label, clipboardText=clipboard_text)
