@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from linebot.v3 import messaging
 
@@ -80,5 +80,26 @@ class ImageMessage(messaging.ImageMessage):
         super().__init__(
             originalContentUrl=original_content_url,
             previewImageUrl=preview_image_url,
+            quickReply=quick_reply,
+        )
+
+
+class FlexMessage(messaging.FlexMessage):
+    """https://developers.line.biz/en/reference/messaging-api/#flex-message."""
+
+    def __init__(
+        self,
+        data: dict[str, Any],
+        *,
+        alt_text: str,
+        quick_reply: messaging.QuickReply | None = None,
+    ) -> None:
+        if len(alt_text) > 400:
+            msg = "altText must be less than or equal to 400 characters"
+            raise ValueError(msg)
+
+        super().__init__(
+            altText=alt_text,
+            contents=messaging.FlexContainer.from_dict(data),
             quickReply=quick_reply,
         )
