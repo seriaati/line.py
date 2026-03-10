@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from linebot.v3 import messaging
 
-from .models.messages import ImageMessage, TemplateMessage, TextMessage
+from .models.messages import FlexMessage, ImageMessage, TemplateMessage, TextMessage
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -159,6 +159,37 @@ class Context:
                         quick_reply=quick_reply,
                     )
                 ],
+                notificationDisabled=notification_disabled,
+            )
+        )
+
+    async def reply_flex(
+        self,
+        data: dict[str, Any],
+        *,
+        alt_text: str,
+        quick_reply: messaging.QuickReply | None = None,
+        notification_disabled: bool = False,
+    ) -> None:
+        """Replies with a flex message.
+
+        Args:
+            data: The data of the flex message.
+            alt_text: The alternative text to display if the client does not support the flex message.
+            quick_reply: The quick reply to send with the message.
+            notification_disabled: Whether to disable notification for the message.
+
+        Raises:
+            ValueError: If the reply token is not provided.
+        """
+        if self.reply_token is None:
+            msg = "reply_token must be provided"
+            raise ValueError(msg)
+
+        await self.api.reply_message(
+            messaging.ReplyMessageRequest(
+                replyToken=self.reply_token,
+                messages=[FlexMessage(data=data, alt_text=alt_text, quick_reply=quick_reply)],
                 notificationDisabled=notification_disabled,
             )
         )
