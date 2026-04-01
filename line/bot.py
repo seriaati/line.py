@@ -166,7 +166,7 @@ class BaseBot:  # noqa: PLR0904
             try:
                 events: list[webhook.Event] = self.webhook_parser.parse(body, signature)  # type: ignore
             except webhook.InvalidSignatureError:
-                LOGGER.exception("Invalid signature")
+                LOGGER.warning("Invalid signature")
                 return web.Response(status=400, text="Invalid signature")
 
             for event in events:
