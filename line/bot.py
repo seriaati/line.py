@@ -134,9 +134,10 @@ class BaseBot:  # noqa: PLR0904
                 param_type = BaseBot.__get_param_type(annotations[param.name])
 
                 if param_type is ParamType.INTEGER:
-                    if not value.isdigit():
-                        raise IntConvertError(param.name, value)
-                    value = int(value)
+                    try:
+                        value = int(value)
+                    except ValueError as e:
+                        raise IntConvertError(param.name, value) from e
                 elif param_type is ParamType.FLOAT:
                     try:
                         value = float(value)
