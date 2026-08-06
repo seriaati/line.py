@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import importlib
 import inspect
+import json
 import logging
 from enum import IntEnum
 from types import UnionType
@@ -160,14 +161,24 @@ class BaseBot:  # noqa: PLR0904
         return args, kwargs
 
     async def _handle_request(self, request: web.Request) -> web.Response:
-        try:
+        try:  # noqa: PLW0717
             signature = request.headers["X-Line-Signature"]
             body = await request.text()
 
             try:
                 events: list[webhook.Event] = self.webhook_parser.parse(body, signature)  # type: ignore
             except webhook.InvalidSignatureError:
-                LOGGER.warning("Invalid signature")
+                try:
+                    destination = json.loads(body).get("destination")
+                except ValueError:
+                    destination = None
+                LOGGER.warning(
+                    "Invalid signature: user_agent=%r destination=%r remote=%r body=%.500r",
+                    request.headers.get("User-Agent"),
+                    destination,
+                    request.remote,
+                    body,
+                )
                 return web.Response(status=400, text="Invalid signature")
 
             for event in events:
